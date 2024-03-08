@@ -13,9 +13,11 @@ public class Log {
     private long id;
     @Column(name = "time_stamp")
     private String time_stamp;
-    @Column(name = "user_id")
+
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
+
     @Column(name = "action")
     private String action;
 }

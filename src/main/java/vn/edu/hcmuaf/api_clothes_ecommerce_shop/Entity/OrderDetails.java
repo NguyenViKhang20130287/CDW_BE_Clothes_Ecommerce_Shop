@@ -1,5 +1,6 @@
 package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -11,20 +12,31 @@ public class OrderDetails {
     @GeneratedValue
     @Column(name = "id")
     private long id;
-    @Column(name = "order_id")
+
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
     private Order order;
-    @Column(name = "product_id")
+
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
     private Product product;
+
+
     @Column(name = "product_name")
     private String product_name;
-    @Column(name = "size_id")
+
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "size_id")
     private Size size;
-    @Column(name = "color_id")
+
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "color_id")
     private Color color;
+
     @Column(name = "quantity")
     private int quantity;
 }

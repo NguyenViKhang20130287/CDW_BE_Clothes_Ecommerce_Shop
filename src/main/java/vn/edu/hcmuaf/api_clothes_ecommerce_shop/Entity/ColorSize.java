@@ -1,5 +1,6 @@
 package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -16,12 +17,17 @@ public class ColorSize {
     @ManyToMany(fetch = FetchType.LAZY)
     @Column(name = "product_id")
     private List<Product> product;
+
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "color_id")
+    @JoinColumn(name = "color_id")
     private Color color;
+
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "size_id")
+    @JoinColumn(name = "size_id")
     private Size size;
+
     @Column(name="quantity")
     private int quantity;
 }
