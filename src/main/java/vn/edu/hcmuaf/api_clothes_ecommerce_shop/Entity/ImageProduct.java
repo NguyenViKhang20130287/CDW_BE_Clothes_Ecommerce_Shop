@@ -1,5 +1,6 @@
 package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -11,10 +12,12 @@ public class ImageProduct {
     @GeneratedValue
     @Column(name = "id")
     private long id;
+
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
-    @Column(name = "product_id")
     private Product product;
+
     @Column(name = "link")
     private String link;
 }

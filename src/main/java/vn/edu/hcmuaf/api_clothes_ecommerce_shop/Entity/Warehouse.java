@@ -1,5 +1,6 @@
 package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -11,20 +12,29 @@ public class Warehouse {
     @GeneratedValue
     @Column(name = "id")
     private long id;
-    @Column(name = "product_id")
+
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
     private Product product;
-    @Column(name = "color_id")
+
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "color_id")
     private Color color;
-    @Column(name = "size_id")
+
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "size_id")
     private Size size;
+
     @Column(name = "quantity")
     private int quantity;
+
     @Column(name = "created_at")
     private String created_at;
-    @Column(name = "created_by")
+
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
