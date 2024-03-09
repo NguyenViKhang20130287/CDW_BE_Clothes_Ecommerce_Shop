@@ -19,18 +19,21 @@ public class Category {
     @Column(name = "status")
     private int status;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by", nullable = false)
-    private User createdBy;
-
-    @Column(name="updated_at")
-    private String updatedAt;
+    @Column(name = "created_at")
+    private String created_at;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "updated_by", nullable = false)
-    private User updatedBy;
+    @JoinColumn(name = "created_by")
+    private User created_by;
+
+    @Column(name = "updated_at")
+    private String updated_at;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "updated_by")
+    private User updated_by;
 
     @JsonIgnore
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
