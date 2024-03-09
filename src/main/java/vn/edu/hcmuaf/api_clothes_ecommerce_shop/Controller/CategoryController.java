@@ -21,11 +21,11 @@ public class CategoryController {
     public ResponseEntity<?> findById(@PathVariable long id) {
         return new ResponseEntity<>(categoryService.findById(id), HttpStatus.OK);
     }
-    @GetMapping("find/all")
+    @GetMapping("all")
     public ResponseEntity<?> findAll() {
         return new ResponseEntity<>(categoryService.findAll(), HttpStatus.OK);
     }
-    @GetMapping("find/active")
+    @GetMapping("active")
     public ResponseEntity<?> activeCategory() {
         return new ResponseEntity<>(categoryService.activeCategory(), HttpStatus.OK);
     }

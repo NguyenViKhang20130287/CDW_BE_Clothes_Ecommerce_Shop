@@ -6,6 +6,8 @@ import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dao.ProductDao;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Product;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.ProductService;
 
+import java.util.List;
+
 @Service
 public class ProductServiceImpl  implements ProductService {
 
@@ -19,5 +21,20 @@ public class ProductServiceImpl  implements ProductService {
     @Override
     public Product findById(long id) {
         return productDao.findById(id);
+    }
+
+    @Override
+    public List<Product> findAll() {
+        return productDao.findAll();
+    }
+
+    @Override
+    public List<Product> activeProduct() {
+        return productDao.activeProduct();
+    }
+
+    @Override
+    public List<Product> categoryProduct(long id) {
+        return productDao.categoryProduct(id);
     }
 }
