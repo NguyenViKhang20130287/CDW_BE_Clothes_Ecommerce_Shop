@@ -37,7 +37,5 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Order> orders;
 
-    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
-    private List<Category> categoriesCreatedBy;
 
 }
