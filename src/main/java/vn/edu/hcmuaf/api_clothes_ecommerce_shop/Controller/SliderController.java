@@ -18,13 +18,13 @@ public class SliderController {
         this.sliderService = sliderService;
     }
 
-    @GetMapping("all")
-    public ResponseEntity<?> findAll() {
-        return new ResponseEntity<>(sliderService.findAll(), HttpStatus.OK);
-    }
-
-    @GetMapping("active")
-    public ResponseEntity<?> activeSlider() {
-        return new ResponseEntity<>(sliderService.activeSlider(), HttpStatus.OK);
-    }
+//    @GetMapping("all")
+//    public ResponseEntity<?> findAll() {
+//        return new ResponseEntity<>(sliderService.findAll(), HttpStatus.OK);
+//    }
+//
+//    @GetMapping("active")
+//    public ResponseEntity<?> activeSlider() {
+//        return new ResponseEntity<>(sliderService.activeSlider(), HttpStatus.OK);
+//    }
 }

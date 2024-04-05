@@ -1,40 +1,49 @@
 package vn.edu.hcmuaf.api_clothes_ecommerce_shop.ServiceImpl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dao.ProductDao;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Product;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.ProductRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.ProductService;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Service
-public class ProductServiceImpl  implements ProductService {
-
-    private ProductDao productDao;
+public class ProductServiceImpl implements ProductService {
 
     @Autowired
-    public ProductServiceImpl(ProductDao productDao){
-        this.productDao = productDao;
+    private ProductRepository productRepository;
+
+    @Override
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
     }
 
     @Override
-    public Product findById(long id) {
-        return productDao.findById(id);
+    public List<Product> getProductsStatusTrue() {
+        return productRepository.findByStatusTrue();
     }
 
     @Override
-    public List<Product> findAll() {
-        return productDao.findAll();
+    public Product getProductById(Long id) {
+        return productRepository.findById(id).orElse(null);
     }
 
     @Override
-    public List<Product> activeProduct() {
-        return productDao.activeProduct();
+    public Page<Product> getAllProducts(String filter, int page, int perPage, String sortBy, String order) {
+        return null;
     }
 
     @Override
-    public List<Product> categoryProduct(long id) {
-        return productDao.categoryProduct(id);
+    public void deleteProduct(Long id) {
+        productRepository.deleteById(id);
     }
+
 }

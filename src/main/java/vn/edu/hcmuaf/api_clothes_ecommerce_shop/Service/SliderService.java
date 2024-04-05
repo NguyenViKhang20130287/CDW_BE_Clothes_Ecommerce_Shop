@@ -7,6 +7,5 @@ import java.util.List;
 
 
 public interface SliderService {
-    List<Slider> findAll();
-    List<Slider> activeSlider();
+
 }
