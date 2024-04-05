@@ -18,13 +18,13 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/find-all")
-    public ResponseEntity<?> getAll(
-            @RequestParam(defaultValue = "1") int pageNum,
-            @RequestParam(defaultValue = "5") int pageSize,
-            @RequestParam(defaultValue = "username") String sort,
-            @RequestParam(defaultValue = "asc") String order
-    ) {
-        return ResponseEntity.ok(userService.getAll(pageNum, pageSize, sort, order));
-    }
+//    @GetMapping("/find-all")
+//    public ResponseEntity<?> getAll(
+//            @RequestParam(defaultValue = "1") int pageNum,
+//            @RequestParam(defaultValue = "5") int pageSize,
+//            @RequestParam(defaultValue = "username") String sort,
+//            @RequestParam(defaultValue = "asc") String order
+//    ) {
+//        return ResponseEntity.ok(userService.getAll(pageNum, pageSize, sort, order));
+//    }
 }

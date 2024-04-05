@@ -21,23 +21,5 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @GetMapping("find/{id}")
-    public ResponseEntity<?> findById(@PathVariable long id) {
-        return new ResponseEntity<>(productService.findById(id), HttpStatus.OK);
-    }
 
-    @GetMapping("all")
-    public ResponseEntity<?> findAll() {
-        return new ResponseEntity<>(productService.findAll(), HttpStatus.OK);
-    }
-
-    @GetMapping("active")
-    public ResponseEntity<?> activeProduct() {
-        return new ResponseEntity<>(productService.activeProduct(), HttpStatus.OK);
-    }
-
-    @GetMapping("category/{id}")
-    public ResponseEntity<?> categoryProduct(@PathVariable long id) {
-        return new ResponseEntity<>(productService.categoryProduct(id), HttpStatus.OK);
-    }
 }
