@@ -1,4 +1,4 @@
-package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto;
+package vn.edu.hcmuaf.api_clothes_ecommerce_shop.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,12 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDTO {
-    private long id;
-    private String email;
+public class AuthenticationRequest {
     private String username;
     private String password;
-    private int isAdmin;
-    private String status;
-    private String otp;
 }
