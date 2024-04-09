@@ -14,5 +14,7 @@ public interface AuthService {
     UserInformation findByEmail(String email);
     ResponseEntity<?> register(String email);
     ResponseEntity<?> registerConfirm(UserDTO userDTO);
-    AuthenticationResponse authentication(AuthenticationRequest authenticationRequest);
+    ResponseEntity<?> login(AuthenticationRequest authenticationRequest);
+    ResponseEntity<?> forgot(String email);
+    ResponseEntity<?> reset(UserDTO userDTO);
 }

@@ -61,6 +61,8 @@ public class AuthServiceImpl implements AuthService {
             return new ResponseEntity<>("OTP has expired!!!", HttpStatus.BAD_REQUEST);
         if (!mapOTP.get(userDTO.getEmail()).equals(userDTO.getOtp()))
             return new ResponseEntity<>("OTP invalid!!!", HttpStatus.BAD_REQUEST);
+        User userCheck = userRepository.findByUsername(userDTO.getUsername()).orElse(null);
+        if (userCheck != null) return new ResponseEntity<>("Username already exist", HttpStatus.BAD_REQUEST);
 
         var user = User.builder()
                 .username(userDTO.getUsername())
@@ -69,8 +71,6 @@ public class AuthServiceImpl implements AuthService {
                 .status(1)
                 .build();
         userRepository.save(user);
-//        UserInformation userInfo = new UserInformation();
-//        userInfo.setEmail(userInfo.getEmail());
         var userInfo = UserInformation.builder()
                 .user(user)
                 .fullName(null)
@@ -88,19 +88,63 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthenticationResponse authentication(AuthenticationRequest authenticationRequest) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        authenticationRequest.getUsername(),
-                        authenticationRequest.getPassword()
-                )
-        );
-        var user = userRepository.findByUsername(authenticationRequest.getUsername()).orElseThrow();
+    public ResponseEntity<?> login(AuthenticationRequest authenticationRequest) {
+        User userCheck = userRepository.findByUsername(authenticationRequest.getUsername()).orElse(null);
+        if (userCheck != null) {
+            if (passwordEncoder.matches(authenticationRequest.getPassword(), userCheck.getPassword())) {
+                authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                authenticationRequest.getUsername(),
+                                authenticationRequest.getPassword()
+                        )
+                );
+                var user = userRepository.findByUsername(authenticationRequest.getUsername()).orElseThrow();
+                var jwtToken = jwtService.generateToken(user);
+                return new ResponseEntity<>(AuthenticationResponse
+                        .builder()
+                        .token(jwtToken)
+                        .build(),
+                        HttpStatus.OK);
+            }
+
+        }
+        return new ResponseEntity<>("Username or password incorrect", HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public ResponseEntity<?> forgot(String email) {
+        UserInformation userInformation = findByEmail(email);
+        if (userInformation == null)
+            return new ResponseEntity<>("User doesn't exist", HttpStatus.BAD_REQUEST);
+        otpConfig.clearOtp(mapOTP, email);
+        String otp = otpConfig.generateOtp(mapOTP, email);
+        emailConfig.send("RESET PASSWORD", email, otp);
+        otpConfig.setTimeOutOtp(mapOTP, email, 3);
+        return new ResponseEntity<>("Email sent successful", HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> reset(UserDTO userDTO) {
+        if (!otpConfig.checkEmailIsValid(mapOTP, userDTO.getEmail()))
+            return new ResponseEntity<>("OTP has expired!!!", HttpStatus.BAD_REQUEST);
+        if (!mapOTP.get(userDTO.getEmail()).equals(userDTO.getOtp()))
+            return new ResponseEntity<>("OTP invalid!!!", HttpStatus.BAD_REQUEST);
+
+        UserInformation userInfo = userInformationRepository.findByEmail(userDTO.getEmail()).orElse(null);
+        assert userInfo != null;
+        User user = userInfo.getUser();
+        user.setPassword(passwordEncoder.encode(userDTO.getNewPassword()));
+//        var user = User.builder()
+//                .password(passwordEncoder.encode(userDTO.getNewPassword()))
+//                .build();
+        userRepository.save(user);
+        otpConfig.clearOtp(mapOTP, userDTO.getEmail());
         var jwtToken = jwtService.generateToken(user);
-        return AuthenticationResponse
-                .builder()
-                .token(jwtToken)
-                .build();
+        return new ResponseEntity<>(
+                AuthenticationResponse.builder()
+                        .token(jwtToken)
+                        .build(),
+                HttpStatus.OK);
     }
 
 //    @Override
