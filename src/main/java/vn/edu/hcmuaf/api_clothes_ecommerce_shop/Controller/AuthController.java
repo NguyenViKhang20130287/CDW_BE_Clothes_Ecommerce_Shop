@@ -1,5 +1,6 @@
 package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -17,12 +18,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/auth/")
 public class AuthController {
     private AuthService authService;
 
     @Autowired
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService){
         this.authService = authService;
     }
 
@@ -36,8 +38,18 @@ public class AuthController {
         return ResponseEntity.ok(authService.registerConfirm(userDTO));
     }
 
-    @PostMapping("authenticate")
-    public ResponseEntity<?> authenticate(@RequestBody AuthenticationRequest authenticationRequest) {
-        return ResponseEntity.ok(authService.authentication(authenticationRequest));
+    @PostMapping("login")
+    public ResponseEntity<?> login(@RequestBody AuthenticationRequest authenticationRequest) {
+        return ResponseEntity.ok(authService.login(authenticationRequest));
+    }
+
+    @PostMapping("forgot-password")
+    public ResponseEntity<?> forgot(@RequestParam String email){
+        return ResponseEntity.ok(authService.forgot(email));
+    }
+
+    @PostMapping("forgot-password/reset")
+    public ResponseEntity<?> reset(@RequestBody UserDTO userDTO){
+        return ResponseEntity.ok(authService.reset(userDTO));
     }
 }
