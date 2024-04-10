@@ -41,7 +41,7 @@ public class Product {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
-    private User createdBy;
+    private User created_by;
 
     @Column(name = "updated_at")
     private String updated_at;
@@ -49,7 +49,7 @@ public class Product {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "updated_by", nullable = false)
-    private User updatedBy;
+    private User updated_by;
 
     @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY)
