@@ -1,12 +1,16 @@
 package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Data
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "user_information")
 public class UserInformation {
 
@@ -15,6 +19,7 @@ public class UserInformation {
     @Column(name = "id")
     private long id;
 
+    @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;

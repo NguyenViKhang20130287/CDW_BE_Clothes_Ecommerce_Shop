@@ -1,51 +1,163 @@
-//package vn.edu.hcmuaf.api_clothes_ecommerce_shop.ServiceImpl;
-//
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.stereotype.Service;
-//import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.UserDTO;
-//import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.User;
-//import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.AuthRepository;
-//import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.AuthService;
-//
-//@Service
-//public class AuthServiceImpl implements AuthService {
-//    @Autowired
-//    private AuthRepository authRepository;
-//
-//    @Override
-//    public User findByEmail(String email) {
-//        return authRepository.findByEmail(email);
-//    }
-//
-//    @Override
-//    public User findByUsername(String username) {
-//        return authRepository.findByUsername(username);
-//    }
-//
-//    @Override
-//    public User register(UserDTO userDTO) {
-//        return authRepository.register(userDTO);
-//    }
+package vn.edu.hcmuaf.api_clothes_ecommerce_shop.ServiceImpl;
 
-//    private AuthDao authDao;
-//
-//    @Autowired
-//    public AuthServiceImpl(AuthDao authDao){
-//        this.authDao = authDao;
-//    }
-//
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Config.EmailConfig;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Config.JwtService;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Config.OTPConfig;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.UserDTO;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.User;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.UserInformation;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.UserInformationRepository;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.UserRepository;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.AuthService;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.auth.AuthenticationRequest;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.auth.AuthenticationResponse;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+@Service
+@RequiredArgsConstructor
+public class AuthServiceImpl implements AuthService {
+
+    private final UserRepository userRepository;
+    private final UserInformationRepository userInformationRepository;
+    private final EmailConfig emailConfig;
+    private final OTPConfig otpConfig;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
+    private final Map<String, String> mapOTP = new HashMap<>();
+
+    @Override
+    public UserInformation findByEmail(String email) {
+        return userInformationRepository.findByEmail(email).orElse(null);
+    }
+
+    @Override
+    public ResponseEntity<?> register(String email) {
+        UserInformation userInformation = findByEmail(email);
+        if (userInformation != null)
+            return new ResponseEntity<>("User already exist", HttpStatus.BAD_REQUEST);
+
+        otpConfig.clearOtp(mapOTP, email);
+        String otp = otpConfig.generateOtp(mapOTP, email);
+        emailConfig.send("REGISTER ACCOUNT", email, otp);
+        otpConfig.setTimeOutOtp(mapOTP, email, 3);
+        return new ResponseEntity<>("Email sent successful", HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> registerConfirm(UserDTO userDTO) {
+        if (!otpConfig.checkEmailIsValid(mapOTP, userDTO.getEmail()))
+            return new ResponseEntity<>("OTP has expired!!!", HttpStatus.BAD_REQUEST);
+        if (!mapOTP.get(userDTO.getEmail()).equals(userDTO.getOtp()))
+            return new ResponseEntity<>("OTP invalid!!!", HttpStatus.BAD_REQUEST);
+        User userCheck = userRepository.findByUsername(userDTO.getUsername()).orElse(null);
+        if (userCheck != null) return new ResponseEntity<>("Username already exist", HttpStatus.BAD_REQUEST);
+
+        var user = User.builder()
+                .username(userDTO.getUsername())
+                .password(passwordEncoder.encode(userDTO.getPassword()))
+                .isAdmin(1)
+                .status(1)
+                .build();
+        userRepository.save(user);
+        var userInfo = UserInformation.builder()
+                .user(user)
+                .fullName(null)
+                .email(userDTO.getEmail())
+                .build();
+        userInformationRepository.save(userInfo);
+        //
+        otpConfig.clearOtp(mapOTP, userDTO.getEmail());
+        var jwtToken = jwtService.generateToken(user);
+        return new ResponseEntity<>(
+                AuthenticationResponse.builder()
+                        .token(jwtToken)
+                        .build(),
+                HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> login(AuthenticationRequest authenticationRequest) {
+        User userCheck = userRepository.findByUsername(authenticationRequest.getUsername()).orElse(null);
+        if (userCheck != null) {
+            if (passwordEncoder.matches(authenticationRequest.getPassword(), userCheck.getPassword())) {
+                authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                authenticationRequest.getUsername(),
+                                authenticationRequest.getPassword()
+                        )
+                );
+                var user = userRepository.findByUsername(authenticationRequest.getUsername()).orElseThrow();
+                var jwtToken = jwtService.generateToken(user);
+                return new ResponseEntity<>(AuthenticationResponse
+                        .builder()
+                        .token(jwtToken)
+                        .build(),
+                        HttpStatus.OK);
+            }
+
+        }
+        return new ResponseEntity<>("Username or password incorrect", HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public ResponseEntity<?> forgot(String email) {
+        UserInformation userInformation = findByEmail(email);
+        if (userInformation == null)
+            return new ResponseEntity<>("User doesn't exist", HttpStatus.BAD_REQUEST);
+        otpConfig.clearOtp(mapOTP, email);
+        String otp = otpConfig.generateOtp(mapOTP, email);
+        emailConfig.send("RESET PASSWORD", email, otp);
+        otpConfig.setTimeOutOtp(mapOTP, email, 3);
+        return new ResponseEntity<>("Email sent successful", HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> reset(UserDTO userDTO) {
+        if (!otpConfig.checkEmailIsValid(mapOTP, userDTO.getEmail()))
+            return new ResponseEntity<>("OTP has expired!!!", HttpStatus.BAD_REQUEST);
+        if (!mapOTP.get(userDTO.getEmail()).equals(userDTO.getOtp()))
+            return new ResponseEntity<>("OTP invalid!!!", HttpStatus.BAD_REQUEST);
+
+        UserInformation userInfo = userInformationRepository.findByEmail(userDTO.getEmail()).orElse(null);
+        assert userInfo != null;
+        User user = userInfo.getUser();
+        user.setPassword(passwordEncoder.encode(userDTO.getNewPassword()));
+//        var user = User.builder()
+//                .password(passwordEncoder.encode(userDTO.getNewPassword()))
+//                .build();
+        userRepository.save(user);
+        otpConfig.clearOtp(mapOTP, userDTO.getEmail());
+        var jwtToken = jwtService.generateToken(user);
+        return new ResponseEntity<>(
+                AuthenticationResponse.builder()
+                        .token(jwtToken)
+                        .build(),
+                HttpStatus.OK);
+    }
+
 //    @Override
-//    public User findByEmail(String email) {
-//        return authDao.findByEmail(email);
+//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+//        User user = findByUsername(username);
+//        if (user == null) {
+//            throw new UsernameNotFoundException("Invalid email or password !!!");
+//        }
+//        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
+//                Collections.singleton(
+//                        new SimpleGrantedAuthority(user.getIsAdmin() == 0 ? "ROLE_ADMIN" : "ROLE_CUSTOMER"
+//                        )
+//                )
+//        );
 //    }
-//
-//    @Override
-//    public User findByUsername(String username) {
-//        return authDao.findByUsername(username);
-//    }
-//
-//    @Override
-//    public User register(UserDTO userDTO) {
-//        return authDao.register(userDTO);
-//    }
-//}
+}
