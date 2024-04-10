@@ -7,13 +7,10 @@ import java.util.List;
 
 public interface ProductService {
     List<Product> getAllProducts();
-
     List<Product> getProductsStatusTrue();
-
     Product getProductById(Long id);
-
     Page<Product> getAllProducts(String filter, int page, int perPage, String sortBy, String order);
-
     void deleteProduct(Long id);
+    Page<Product> sortProduct(int pageNum, String sortBy, String orderBy);
 
 }

@@ -22,20 +22,27 @@ public class Product {
 
     @Column(name = "name")
     private String name;
+
     @Column(name = "thumbnail")
     private String thumbnail;
+
     @Column(name = "content")
     private String content;
+
     @Column(name = "price")
     private double price;
+
     @Column(name = "quantity")
     private int quantity;
+
     @Column(name = "sold")
     private int sold;
+
     @Column(name = "status")
     private int status;
+
     @Column(name = "created_at")
-    private String created_at;
+    private String createdAt;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)

@@ -1,6 +1,8 @@
 package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +13,8 @@ import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Product;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.ProductService;
 
 @RestController
-@RequestMapping("/api/v1/product/")
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/product")
 public class ProductController {
 
     private ProductService productService;
@@ -21,5 +24,13 @@ public class ProductController {
         this.productService = productService;
     }
 
+    @GetMapping("/findAll/sort={sortBy}/order={orderBy}/pageNum={pageNum}")
+    public Page<Product> findAll(
+            @PathVariable String sortBy,
+            @PathVariable String orderBy,
+            @PathVariable int pageNum
+    ){
+        return productService.sortProduct(pageNum, sortBy, orderBy);
+    }
 
 }
