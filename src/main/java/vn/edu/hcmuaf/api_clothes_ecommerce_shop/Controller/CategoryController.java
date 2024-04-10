@@ -22,14 +22,22 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<Category>> getAllCategories( @RequestParam(defaultValue = "{}") String filter,
-                                                            @RequestParam(defaultValue = "1") int pageNum,
-                                                            @RequestParam(defaultValue = "5") int pageSize,
-                                                            @RequestParam(defaultValue = "name") String sort,
-                                                            @RequestParam(defaultValue = "asc") String order) {
-        Page<Category> categories = categoryService.getAllCategories(filter, pageNum, pageSize, sort, order);
+    public ResponseEntity<Page<Category>> getAllCategories(@RequestParam(defaultValue = "0") int page,
+                                                           @RequestParam(defaultValue = "{}") String filter,
+                                                           @RequestParam(defaultValue = "25") int perPage,
+                                                           @RequestParam(defaultValue = "name") String sort,
+                                                           @RequestParam(defaultValue = "DESC") String order) {
+        Page<Category> categories = categoryService.getAllCategories(filter, page, perPage, sort, order);
         return ResponseEntity.ok(categories);
     }
 
-
+    @GetMapping("/{id}")
+    public ResponseEntity<Category> getCategoryById(@PathVariable long id) {
+        return ResponseEntity.ok(categoryService.getCategoryById(id));
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCategoryById(@PathVariable long id) {
+        categoryService.deleteCategory(id);
+        return ResponseEntity.ok("Deleted");
+    }
 }

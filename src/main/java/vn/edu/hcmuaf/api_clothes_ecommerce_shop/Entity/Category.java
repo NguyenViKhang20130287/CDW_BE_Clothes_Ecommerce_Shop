@@ -18,7 +18,7 @@ public class Category {
     @Column(name = "name")
     private String name;
     @Column(name = "status")
-    private int status;
+    private boolean status;
 
     @Column(name = "created_at")
     private String created_at;

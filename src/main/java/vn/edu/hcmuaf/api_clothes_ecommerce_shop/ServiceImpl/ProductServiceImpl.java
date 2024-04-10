@@ -38,7 +38,38 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<Product> getAllProducts(String filter, int page, int perPage, String sortBy, String order) {
-        return null;
+        Sort.Direction direction = Sort.Direction.ASC;
+        if (order.equalsIgnoreCase("DESC"))
+            direction = Sort.Direction.DESC;
+
+        JsonNode filterJson;
+        try {
+            filterJson = new ObjectMapper().readTree(java.net.URLDecoder.decode(filter, StandardCharsets.UTF_8));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        Specification<Product> specification = (root, query, criteriaBuilder) -> {
+            Predicate predicate = criteriaBuilder.conjunction();
+            if (filterJson.has("name")) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("name"), "%" + filterJson.get("name").asText() + "%"));
+            }
+            if (filterJson.has("status")) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("status"), filterJson.get("status").asBoolean()));
+            }
+            if (filterJson.has("categoryId")) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("category").get("id"), filterJson.get("categoryId").asLong()));
+            }
+            return predicate;
+        };
+
+        if (sortBy.equals("name")) {
+            return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "name")));
+        }
+        if (sortBy.equals("status")) {
+            return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "status")));
+        }
+
+        return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, sortBy)));
     }
 
     @Override

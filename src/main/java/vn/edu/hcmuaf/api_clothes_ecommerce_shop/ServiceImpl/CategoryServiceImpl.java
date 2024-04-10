@@ -16,6 +16,7 @@ import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.CategoryService;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -53,33 +54,30 @@ public class CategoryServiceImpl implements CategoryService {
         if (sortBy.equals("status")) {
             return categoryRepository.findAll(specification, PageRequest.of(start, end, Sort.by(direction, "status")));
         }
-
         return categoryRepository.findAll(specification, PageRequest.of(start, end, Sort.by(direction, sortBy)));
-    }
-
-    @Override
-    public List<Category> getAllCategories(String ids) {
-        JsonNode filterJson;
-        try {
-            filterJson = new ObjectMapper().readTree(java.net.URLDecoder.decode(ids, StandardCharsets.UTF_8));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        if (filterJson.has("ids")) {
-            List<Long> idsList = new ArrayList<>();
-            for (JsonNode idNode : filterJson.get("ids")) {
-                idsList.add(idNode.asLong());
-            }
-            Iterable<Long> itr = List.of(Stream.of(idsList).flatMap(List::stream).toArray(Long[]::new));
-            return categoryRepository.findAllById(itr);
-        }
-
-        return null;
     }
 
     @Override
     public List<Category> getCategoriesStatusTrue() {
         return categoryRepository.getAllByStatusIsTrue();
+    }
+
+    @Override
+    public Category getCategoryById(long id) {
+        return categoryRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public void deleteCategory(long id) {
+        categoryRepository.deleteById(id);
+    }
+
+    @Override
+    public Category createCategory(Category category) {
+        Date currentDate = new Date(System.currentTimeMillis());
+        category.setCreated_at(String.valueOf(currentDate));
+        category.setUpdated_at(String.valueOf(currentDate));
+        return categoryRepository.save(category);
     }
 
 }
