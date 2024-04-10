@@ -11,10 +11,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Category;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.User;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.CategoryRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.CategoryService;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.UserService;
 
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -74,10 +77,20 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category createCategory(Category category) {
-        Date currentDate = new Date(System.currentTimeMillis());
-        category.setCreated_at(String.valueOf(currentDate));
-        category.setUpdated_at(String.valueOf(currentDate));
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        category.setCreated_at(formatter.format(new Date()));
+        category.setUpdated_at(formatter.format(new Date()));
         return categoryRepository.save(category);
+    }
+
+    @Override
+    public Category updateCategory(long id, Category category) {
+        Category categoryUpdate = categoryRepository.findById(id).orElse(null);
+        categoryUpdate.setName(category.getName());
+        categoryUpdate.setStatus(category.isStatus());
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        categoryUpdate.setUpdated_at(formatter.format(new Date()));
+        return categoryRepository.save(categoryUpdate);
     }
 
 }

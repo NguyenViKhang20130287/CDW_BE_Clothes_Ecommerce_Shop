@@ -40,4 +40,12 @@ public class CategoryController {
         categoryService.deleteCategory(id);
         return ResponseEntity.ok("Deleted");
     }
+    @PostMapping
+    public ResponseEntity<Category> createCategory(@RequestBody Category category) {
+        return ResponseEntity.ok(categoryService.createCategory(category));
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<Category> updateCategory(@PathVariable long id, @RequestBody Category category) {
+        return ResponseEntity.ok(categoryService.updateCategory(id, category));
+    }
 }
