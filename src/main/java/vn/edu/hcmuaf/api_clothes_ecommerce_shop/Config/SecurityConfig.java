@@ -15,7 +15,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.AuthService;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -73,8 +77,11 @@ public class SecurityConfig {
                 .csrf()
                 .disable()
                 .authorizeHttpRequests()
-//                .requestMatchers(HttpMethod.POST, "").permitAll()
-                .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers("/api/v1/auth/").permitAll()
+                .requestMatchers("/api/v1/user/").permitAll()
+                .requestMatchers("/api/v1/product/**").permitAll()
+                .requestMatchers("/api/v1/category/**").permitAll()
+                .requestMatchers("/api/v1/color/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/test/").hasRole("ADMIN")
                 .anyRequest()
                 .authenticated()
@@ -83,8 +90,12 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues())
+        ;
 
         return http.build();
     }
+
+
 }

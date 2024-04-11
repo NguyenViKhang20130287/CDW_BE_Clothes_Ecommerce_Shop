@@ -106,27 +106,29 @@ public class ProductServiceImpl implements ProductService {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         List<ColorSize> colorSizes = new ArrayList<>();
         for (ColorSize colorSize : product.getColorSizes()) {
-            System.out.println("Id la" + colorSize.getId());
             colorSize.setProduct(product);
-            colorSizes.add(colorSizeRepository.save(colorSize));
             // check color name and size name exist in color_size table, if not, create new color and size with that name
             if (colorRepository.findByName(colorSize.getColor().getName()) == null) {
                 Color color = new Color();
                 color.setName(colorSize.getColor().getName());
                 colorRepository.save(color);
+                colorSize.setColor(color);
             }
             if (sizeRepository.findByName(colorSize.getSize().getName()) == null) {
                 Size size = new Size();
                 size.setName(colorSize.getSize().getName());
                 sizeRepository.save(size);
+                colorSize.setSize(size);
             }
+            colorSizeRepository.save(colorSize);
+            colorSizes.add(colorSizeRepository.save(colorSize));
         }
+        product.setColorSizes(colorSizes);
         product.setPrice(product.getPrice());
         product.setCreated_at(formatter.format(new Date()));
         product.setCreated_by(product.getCreated_by());
         product.setUpdated_at(formatter.format(new Date()));
         product.setUpdated_by(product.getUpdated_by());
-        product.setColorSizes(colorSizes);
 
         if(product.getThumbnail() == null) {
             product.setThumbnail("");
@@ -143,7 +145,6 @@ public class ProductServiceImpl implements ProductService {
             imageProducts.add(imageProductRepository.save(imageProduct));
         }
         product.setImageProducts(imageProducts);
-
         return productRepository.save(product);
     }
 
