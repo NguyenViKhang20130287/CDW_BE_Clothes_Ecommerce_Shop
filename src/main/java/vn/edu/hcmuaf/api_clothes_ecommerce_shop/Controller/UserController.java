@@ -1,5 +1,6 @@
 package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.UserInformation;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.UserService;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/user")
 public class UserController {
     private UserService userService;
@@ -23,13 +25,19 @@ public class UserController {
     }
 
     @GetMapping("/find-all")
-    public Page<User> getAll(
+    public Page<UserInformation> getAll(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int perPage,
-            @RequestParam(defaultValue = "username") String sort,
-            @RequestParam(defaultValue = "asc") String order
+            @RequestParam(defaultValue = "fullName") String sort,
+            @RequestParam(defaultValue = "asc") String order,
+            @RequestParam(defaultValue = "") String filter
     ) {
-        return userService.findAllUser(page, perPage);
+        return userService.findAll(page, perPage, sort, order, filter);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> findAll(){
+        return ResponseEntity.ok(userService.findAll());
     }
 
     @GetMapping("/find-by-username")

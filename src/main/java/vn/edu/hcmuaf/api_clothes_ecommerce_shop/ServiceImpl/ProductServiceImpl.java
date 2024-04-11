@@ -3,7 +3,9 @@ package vn.edu.hcmuaf.api_clothes_ecommerce_shop.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
+import lombok.RequiredArgsConstructor;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
@@ -20,22 +22,28 @@ import java.util.Date;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
-
-    @Autowired
     private ProductRepository productRepository;
-
-    @Autowired
     private ColorSizeRepository colorSizeRepository;
-
-    @Autowired
     private ColorRepository colorRepository;
-
-    @Autowired
     private SizeRepository sizeRepository;
+    private ImageProductRepository imageProductRepository;
 
     @Autowired
-    private ImageProductRepository imageProductRepository;
+    public ProductServiceImpl(
+            ProductRepository productRepository,
+            ColorSizeRepository colorSizeRepository,
+            ColorRepository colorRepository,
+            SizeRepository sizeRepository,
+            ImageProductRepository imageProductRepository
+    ){
+        this.productRepository = productRepository;
+        this.colorSizeRepository = colorSizeRepository;
+        this.colorRepository = colorRepository;
+        this.sizeRepository = sizeRepository;
+        this.imageProductRepository = imageProductRepository;
+    }
 
 
     @Override
@@ -101,6 +109,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Page<Product> sortProduct(int pageNum, String sortBy, String orderBy) {
+        Sort.Direction direction = Sort.Direction.ASC;
+        if (orderBy.equalsIgnoreCase("desc")){
+            direction = Sort.Direction.DESC;
+        }
+        Sort sort = Sort.by(direction, sortBy);
+        Pageable pageable = PageRequest.of(pageNum, 10, sort);
+        return productRepository.findAll(pageable);
+    }
+
+    @Override
     @Transactional
     public Product createProduct(Product product) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -122,10 +141,10 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         product.setPrice(product.getPrice());
-        product.setCreated_at(formatter.format(new Date()));
-        product.setCreated_by(product.getCreated_by());
-        product.setUpdated_at(formatter.format(new Date()));
-        product.setUpdated_by(product.getUpdated_by());
+        product.setCreatedAt(formatter.format(new Date()));
+        product.setCreatedBy(product.getCreatedBy());
+        product.setUpdatedAt(formatter.format(new Date()));
+        product.setCreatedBy(product.getUpdatedBy());
         product.setColorSizes(colorSizes);
 
         if(product.getThumbnail() == null) {
