@@ -14,4 +14,5 @@ public interface UserInformationRepository extends JpaRepository<UserInformation
     Optional<UserInformation> findByEmail(String email);
     Page<UserInformation> findAll(Specification<UserInformation> specification, Pageable pageable);
     List<UserInformation> findAll();
+    Optional<UserInformation> findByEmailOrUserUsername(String email, String username);
 }
