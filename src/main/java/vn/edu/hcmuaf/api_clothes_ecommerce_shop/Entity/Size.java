@@ -1,5 +1,6 @@
 package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -16,12 +17,15 @@ public class Size {
     @Column(name = "name")
     private String name;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "size", cascade = CascadeType.ALL)
     private List<ColorSize> colorSizes;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "size", cascade = CascadeType.ALL)
     private List<Warehouse> warehouses;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "size", cascade = CascadeType.ALL)
     private List<OrderDetails> orderDetails;
 

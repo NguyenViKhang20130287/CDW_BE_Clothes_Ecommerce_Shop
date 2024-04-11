@@ -5,10 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Product;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.ProductService;
 
@@ -32,5 +29,23 @@ public class ProductController {
     ){
         return productService.sortProduct(pageNum, sortBy, orderBy);
     }
+    @GetMapping
+    public ResponseEntity<Page<Product>> getAllProducts(@RequestParam(defaultValue = "0") int page,
+                                                        @RequestParam(defaultValue = "{}") String filter,
+                                                        @RequestParam(defaultValue = "25") int perPage,
+                                                        @RequestParam(defaultValue = "name") String sort,
+                                                        @RequestParam(defaultValue = "DESC") String order) {
+        Page<Product> products = productService.getAllProducts(filter, page, perPage, sort, order);
+        return ResponseEntity.ok(products);
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
+        Product product = productService.getProductById(id);
+        return ResponseEntity.ok(product);
+    }
 
+    @PostMapping
+    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+       return ResponseEntity.ok(productService.createProduct(product));
+    }
 }

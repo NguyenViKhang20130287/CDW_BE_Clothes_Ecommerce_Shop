@@ -11,11 +11,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Category;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.User;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.CategoryRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.CategoryService;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.UserService;
 
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -53,33 +57,40 @@ public class CategoryServiceImpl implements CategoryService {
         if (sortBy.equals("status")) {
             return categoryRepository.findAll(specification, PageRequest.of(start, end, Sort.by(direction, "status")));
         }
-
         return categoryRepository.findAll(specification, PageRequest.of(start, end, Sort.by(direction, sortBy)));
-    }
-
-    @Override
-    public List<Category> getAllCategories(String ids) {
-        JsonNode filterJson;
-        try {
-            filterJson = new ObjectMapper().readTree(java.net.URLDecoder.decode(ids, StandardCharsets.UTF_8));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        if (filterJson.has("ids")) {
-            List<Long> idsList = new ArrayList<>();
-            for (JsonNode idNode : filterJson.get("ids")) {
-                idsList.add(idNode.asLong());
-            }
-            Iterable<Long> itr = List.of(Stream.of(idsList).flatMap(List::stream).toArray(Long[]::new));
-            return categoryRepository.findAllById(itr);
-        }
-
-        return null;
     }
 
     @Override
     public List<Category> getCategoriesStatusTrue() {
         return categoryRepository.getAllByStatusIsTrue();
+    }
+
+    @Override
+    public Category getCategoryById(long id) {
+        return categoryRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public void deleteCategory(long id) {
+        categoryRepository.deleteById(id);
+    }
+
+    @Override
+    public Category createCategory(Category category) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        category.setCreated_at(formatter.format(new Date()));
+        category.setUpdated_at(formatter.format(new Date()));
+        return categoryRepository.save(category);
+    }
+
+    @Override
+    public Category updateCategory(long id, Category category) {
+        Category categoryUpdate = categoryRepository.findById(id).orElse(null);
+        categoryUpdate.setName(category.getName());
+        categoryUpdate.setStatus(category.isStatus());
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        categoryUpdate.setUpdated_at(formatter.format(new Date()));
+        return categoryRepository.save(categoryUpdate);
     }
 
 }

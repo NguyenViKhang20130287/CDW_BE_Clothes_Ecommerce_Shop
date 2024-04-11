@@ -13,4 +13,6 @@ public interface ProductService {
     void deleteProduct(Long id);
     Page<Product> sortProduct(int pageNum, String sortBy, String orderBy);
 
+    Product createProduct(Product product);
+
 }

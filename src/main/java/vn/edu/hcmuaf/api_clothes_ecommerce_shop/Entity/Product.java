@@ -1,6 +1,7 @@
 package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -15,7 +16,7 @@ public class Product {
     @Column(name = "id")
     private long id;
 
-    @JsonIgnore
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
@@ -39,12 +40,11 @@ public class Product {
     private int sold;
 
     @Column(name = "status")
-    private int status;
-
+    private boolean status;
     @Column(name = "created_at")
     private String createdAt;
 
-    @JsonIgnore
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
@@ -52,7 +52,7 @@ public class Product {
     @Column(name = "updated_at")
     private String updatedAt;
 
-    @JsonIgnore
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "updated_by", nullable = false)
     private User updatedBy;
@@ -71,7 +71,12 @@ public class Product {
             inverseJoinColumns = @JoinColumn(name = "size_id"))
     private List<Size> sizes;
 
-    @JsonIgnore
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private List<ColorSize> colorSizes;
+
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<ImageProduct> imageProducts;
 
