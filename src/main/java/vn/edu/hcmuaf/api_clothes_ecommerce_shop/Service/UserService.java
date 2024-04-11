@@ -2,6 +2,8 @@ package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.UserDTO;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.User;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.UserInformation;
 
@@ -13,4 +15,6 @@ public interface UserService {
     List<UserInformation> findAll();
     User findByUsername(String username);
     UserInformation findByEmail(String email);
+    UserInformation findByEmailOrUsername(String email, String username);
+    ResponseEntity<?> createNew(UserDTO userDTO);
 }

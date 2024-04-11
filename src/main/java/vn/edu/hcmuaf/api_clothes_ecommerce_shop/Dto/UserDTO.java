@@ -18,4 +18,9 @@ public class UserDTO {
     private int isAdmin;
     private String status;
     private String otp;
+    private String fullName;
+    private String address;
+    private int role;
+    private String phone;
+    private String avatar;
 }
