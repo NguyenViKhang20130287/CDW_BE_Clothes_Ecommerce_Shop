@@ -138,10 +138,10 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         product.setPrice(product.getPrice());
-        product.setCreated_at(formatter.format(new Date()));
-        product.setCreated_by(product.getCreated_by());
-        product.setUpdated_at(formatter.format(new Date()));
-        product.setUpdated_by(product.getUpdated_by());
+        product.setCreatedAt(formatter.format(new Date()));
+        product.setCreatedBy(product.getCreatedBy());
+        product.setCreatedAt(formatter.format(new Date()));
+        product.setUpdatedBy(product.getUpdatedBy());
         product.setColorSizes(colorSizes);
 
         if(product.getThumbnail() == null) {
