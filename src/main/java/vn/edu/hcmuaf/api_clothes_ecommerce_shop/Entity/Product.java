@@ -29,33 +29,39 @@ public class Product {
 
     @Column(name = "name")
     private String name;
+
     @Column(name = "thumbnail")
     private String thumbnail;
+
     @Column(name = "content")
     private String content;
+
     @Column(name = "price")
     private double price;
+
     @Column(name = "quantity")
     private int quantity;
+
     @Column(name = "sold")
     private int sold;
+
     @Column(name = "status")
     private boolean status;
     @Column(name = "created_at")
-    private String created_at;
+    private String createdAt;
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
-    private User created_by;
+    private User createdBy;
 
     @Column(name = "updated_at")
-    private String updated_at;
+    private String updatedAt;
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "updated_by", nullable = false)
-    private User updated_by;
+    private User updatedBy;
 
     @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY)

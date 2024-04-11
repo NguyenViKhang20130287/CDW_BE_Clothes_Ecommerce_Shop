@@ -68,7 +68,7 @@ public class AuthServiceImpl implements AuthService {
                 .username(userDTO.getUsername())
                 .password(passwordEncoder.encode(userDTO.getPassword()))
                 .isAdmin(1)
-                .status(1)
+                .status(true)
                 .build();
         userRepository.save(user);
         var userInfo = UserInformation.builder()
