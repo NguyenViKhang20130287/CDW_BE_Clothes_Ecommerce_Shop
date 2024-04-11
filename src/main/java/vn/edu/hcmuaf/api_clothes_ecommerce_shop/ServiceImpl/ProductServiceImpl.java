@@ -27,19 +27,23 @@ public class ProductServiceImpl implements ProductService {
     private SizeRepository sizeRepository;
     private ImageProductRepository imageProductRepository;
 
+    private UserRepository userRepository;
+
     @Autowired
     public ProductServiceImpl(
             ProductRepository productRepository,
             ColorSizeRepository colorSizeRepository,
             ColorRepository colorRepository,
             SizeRepository sizeRepository,
-            ImageProductRepository imageProductRepository
+            ImageProductRepository imageProductRepository,
+            UserRepository userRepository
     ){
         this.productRepository = productRepository;
         this.colorSizeRepository = colorSizeRepository;
         this.colorRepository = colorRepository;
         this.sizeRepository = sizeRepository;
         this.imageProductRepository = imageProductRepository;
+        this.userRepository = userRepository;
     }
 
 
@@ -121,28 +125,11 @@ public class ProductServiceImpl implements ProductService {
     public Product createProduct(Product product) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         List<ColorSize> colorSizes = new ArrayList<>();
-        for (ColorSize colorSize : product.getColorSizes()) {
-            System.out.println("Id la" + colorSize.getId());
-            colorSize.setProduct(product);
-            colorSizes.add(colorSizeRepository.save(colorSize));
-            // check color name and size name exist in color_size table, if not, create new color and size with that name
-            if (colorRepository.findByName(colorSize.getColor().getName()) == null) {
-                Color color = new Color();
-                color.setName(colorSize.getColor().getName());
-                colorRepository.save(color);
-            }
-            if (sizeRepository.findByName(colorSize.getSize().getName()) == null) {
-                Size size = new Size();
-                size.setName(colorSize.getSize().getName());
-                sizeRepository.save(size);
-            }
-        }
         product.setPrice(product.getPrice());
         product.setCreatedAt(formatter.format(new Date()));
-        product.setCreatedBy(product.getCreatedBy());
-        product.setCreatedAt(formatter.format(new Date()));
-        product.setUpdatedBy(product.getUpdatedBy());
-        product.setColorSizes(colorSizes);
+        product.setCreatedBy(userRepository.findById(1L).orElse(null));
+        product.setUpdatedBy(userRepository.findById(1L).orElse(null));
+        product.setUpdatedAt(formatter.format(new Date()));
 
         if(product.getThumbnail() == null) {
             product.setThumbnail("");
@@ -160,7 +147,17 @@ public class ProductServiceImpl implements ProductService {
         }
         product.setImageProducts(imageProducts);
 
-        return productRepository.save(product);
+        Product newProduct = productRepository.save(product);
+
+        for (ColorSize colorSize : product.getColorSizes()) {
+            colorSize.setProduct(newProduct);
+            colorSize.setColor(colorRepository.findById(colorSize.getColor().getId()).orElse(null));
+            colorSize.setSize(sizeRepository.findById(colorSize.getSize().getId()).orElse(null));
+            colorSize.setQuantity(0);
+            colorSizeRepository.save(colorSize);
+            colorSizes.add(colorSize);
+        }
+        return productRepository.save(newProduct);
     }
 
 }
