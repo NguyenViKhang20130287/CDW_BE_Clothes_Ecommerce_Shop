@@ -33,7 +33,7 @@ public class User implements UserDetails {
     private int isAdmin;
 
     @Column(name = "status")
-    private int status;
+    private boolean status;
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

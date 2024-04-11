@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
-    Page<User> findAllUser(int page, int size);
+    Page<UserInformation> findAll(int page, int size, String sort, String order, String filter);
+    List<UserInformation> findAll();
     User findByUsername(String username);
     UserInformation findByEmail(String email);
 }

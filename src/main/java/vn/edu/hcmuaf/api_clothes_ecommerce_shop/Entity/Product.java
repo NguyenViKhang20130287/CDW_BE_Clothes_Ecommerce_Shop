@@ -50,7 +50,7 @@ public class Product {
     private User createdBy;
 
     @Column(name = "updated_at")
-    private String updated_at;
+    private String updatedAt;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)

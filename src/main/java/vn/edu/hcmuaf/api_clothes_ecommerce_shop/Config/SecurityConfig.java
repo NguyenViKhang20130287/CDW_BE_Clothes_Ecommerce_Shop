@@ -73,8 +73,8 @@ public class SecurityConfig {
                 .csrf()
                 .disable()
                 .authorizeHttpRequests()
-//                .requestMatchers(HttpMethod.POST, "").permitAll()
                 .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers("/api/v1/user/**").permitAll()
                 .requestMatchers("/api/v1/product/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/test/").hasRole("ADMIN")
                 .anyRequest()
@@ -84,7 +84,9 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues())
+        ;
 
         return http.build();
     }
