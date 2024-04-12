@@ -73,4 +73,9 @@ public class UserController {
     ) {
         return ResponseEntity.ok(userService.createNew(userDTO));
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> findById(@PathVariable long id){
+        return ResponseEntity.ok(userService.findByUserId(id));
+    }
 }

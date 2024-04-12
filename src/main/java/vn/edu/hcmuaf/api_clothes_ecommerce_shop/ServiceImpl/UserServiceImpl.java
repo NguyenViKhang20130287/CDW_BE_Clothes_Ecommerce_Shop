@@ -136,4 +136,9 @@ public class UserServiceImpl implements UserService {
 
         return new ResponseEntity<>(userInfo, HttpStatus.OK);
     }
+
+    @Override
+    public UserInformation findByUserId(long id) {
+        return userInformationRepository.findByUserId(id).orElse(null);
+    }
 }

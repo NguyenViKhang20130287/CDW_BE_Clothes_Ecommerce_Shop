@@ -17,11 +17,11 @@ public class UserInformation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private long id;
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
 

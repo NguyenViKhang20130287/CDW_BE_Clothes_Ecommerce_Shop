@@ -49,7 +49,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (isAdmin == 0) return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        if (isAdmin == 1) return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
         return List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
     }
 
