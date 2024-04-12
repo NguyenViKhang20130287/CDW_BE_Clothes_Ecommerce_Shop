@@ -1,6 +1,7 @@
 package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -29,15 +30,17 @@ public class User implements UserDetails {
     @Column(name = "password")
     private String password;
 
-    @Column(name = "is_admin")
-    private int isAdmin;
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "permission_id", referencedColumnName = "id", nullable = false)
+    private Permission permission;
 
     @Column(name = "status")
     private boolean status;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Permission> permissions;
+//    @JsonIgnore
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+//    private List<Permission> permissions;
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
@@ -49,8 +52,9 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (isAdmin == 1) return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        return List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+//        if (isAdmin == 1) return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
+//        return List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + permission.getName()));
     }
 
     @Override

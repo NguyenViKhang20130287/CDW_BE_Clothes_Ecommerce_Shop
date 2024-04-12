@@ -15,8 +15,4 @@ public class Permission {
     @Column(name = "name")
     private String name;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
 }
