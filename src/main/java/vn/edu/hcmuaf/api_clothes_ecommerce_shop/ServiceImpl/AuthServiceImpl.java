@@ -12,14 +12,17 @@ import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Config.EmailConfig;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Config.JwtService;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Config.OTPConfig;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.UserDTO;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Permission;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.User;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.UserInformation;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.PermissionRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.UserInformationRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.UserRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.AuthService;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.auth.AuthenticationRequest;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.auth.AuthenticationResponse;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +38,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final PermissionRepository permissionRepository;
     private final Map<String, String> mapOTP = new HashMap<>();
 
     @Override
@@ -64,10 +68,12 @@ public class AuthServiceImpl implements AuthService {
         User userCheck = userRepository.findByUsername(userDTO.getUsername()).orElse(null);
         if (userCheck != null) return new ResponseEntity<>("Username already exist", HttpStatus.BAD_REQUEST);
 
+        Permission permission = permissionRepository.findByName("CUSTOMER").orElse(null);
+
         var user = User.builder()
                 .username(userDTO.getUsername())
                 .password(passwordEncoder.encode(userDTO.getPassword()))
-                .isAdmin(1)
+                .permission(permission)
                 .status(true)
                 .build();
         userRepository.save(user);
@@ -75,6 +81,7 @@ public class AuthServiceImpl implements AuthService {
                 .user(user)
                 .fullName(null)
                 .email(userDTO.getEmail())
+                .createdAt(LocalDateTime.now())
                 .build();
         userInformationRepository.save(userInfo);
         //

@@ -17,8 +17,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.UserDTO;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Permission;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.User;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.UserInformation;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.PermissionRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.UserInformationRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.UserRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.UserService;
@@ -33,16 +35,19 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     private UserInformationRepository userInformationRepository;
     private PasswordEncoder passwordEncoder;
+    private PermissionRepository permissionRepository;
 
     @Autowired
     public UserServiceImpl(
             UserRepository userRepository,
             UserInformationRepository userInformationRepository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            PermissionRepository permissionRepository
     ) {
         this.userRepository = userRepository;
         this.userInformationRepository = userInformationRepository;
         this.passwordEncoder = passwordEncoder;
+        this.permissionRepository = permissionRepository;
     }
 
     @Override
@@ -73,14 +78,6 @@ public class UserServiceImpl implements UserService {
                 String searchStr = jsonFilter.get("q").asText();
                 predicate = criteriaBuilder.like(criteriaBuilder.lower(root.get("fullName")), "%" + searchStr.toLowerCase() + "%");
             }
-//                predicate = criteriaBuilder.and(predicate,
-//                        criteriaBuilder.or(
-//                                criteriaBuilder.like(criteriaBuilder.lower(root.get("fullName")), "%" + filter.toLowerCase() + "%"),
-//                                criteriaBuilder.like(criteriaBuilder.lower(root.get("email")), "%" + filter.toLowerCase() + "%"),
-//                                criteriaBuilder.like(criteriaBuilder.lower(root.get("phone")), "%" + filter.toLowerCase() + "%"),
-//                                criteriaBuilder.like(criteriaBuilder.lower(root.get("status")), "%" + filter.toLowerCase() + "%")
-//                        )
-//                );
             return predicate;
         };
 
@@ -116,10 +113,13 @@ public class UserServiceImpl implements UserService {
         String generatePassword = String.format("%04d", (int) (Math.random() * 1000000));
         System.out.println("Password generate: " + generatePassword);
 
+        System.out.println("Permission: " + userDTO.getPermission());
+        Permission permission = permissionRepository.findById(userDTO.getPermission()).orElse(null);
+
         User user = new User();
         user.setUsername(userDTO.getUsername());
         user.setPassword(passwordEncoder.encode(generatePassword));
-        user.setIsAdmin(userDTO.getIsAdmin());
+        user.setPermission(permission);
         user.setStatus(true);
         userRepository.save(user);
         System.out.println("Create user successful");
@@ -135,5 +135,34 @@ public class UserServiceImpl implements UserService {
         System.out.println("Create user info successful");
 
         return new ResponseEntity<>(userInfo, HttpStatus.OK);
+    }
+
+    @Override
+    public UserInformation findByUserId(long id) {
+        return userInformationRepository.findByUserId(id).orElse(null);
+    }
+
+    @Override
+    public ResponseEntity<?> edit(UserDTO userDTO) {
+//        UserInformation userCheck = userInformationRepository.findByEmailOrUserUsername(userDTO.getEmail(),
+//                userDTO.getUsername()).orElse(null);
+//        if (userCheck == null) return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+//        User user = new User();
+//        user.setPassword(passwordEncoder.encode(userDTO.getNewPassword()));
+//        user.setIsAdmin(userDTO.getRole());
+//        user.setStatus(true);
+//        userRepository.save(user);
+//        System.out.println("Create user successful");
+//
+//        UserInformation userInfo = new UserInformation();
+//        userInfo.setEmail(userDTO.getEmail());
+//        userInfo.setAddress(userDTO.getAddress());
+//        userInfo.setFullName(userDTO.getFullName());
+//        userInfo.setPhone(userDTO.getPhone());
+//        userInfo.setAvatar(null);
+//        userInfo.setUser(user);
+//        userInformationRepository.save(userInfo);
+//        System.out.println("Create user info successful");
+        return null;
     }
 }

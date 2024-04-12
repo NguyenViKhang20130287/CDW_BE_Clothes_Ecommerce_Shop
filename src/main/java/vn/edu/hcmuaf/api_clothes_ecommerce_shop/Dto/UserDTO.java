@@ -20,7 +20,7 @@ public class UserDTO {
     private String otp;
     private String fullName;
     private String address;
-    private int role;
+    private int permission;
     private String phone;
     private String avatar;
 }
