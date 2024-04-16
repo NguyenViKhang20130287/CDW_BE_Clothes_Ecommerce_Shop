@@ -83,6 +83,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/category/**").permitAll()
                 .requestMatchers("/api/v1/color/**").permitAll()
                 .requestMatchers("/api/v1/size/**").permitAll()
+                .requestMatchers("/api/v1/promotion/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/test/").hasRole("ADMIN")
                 .anyRequest()
                 .authenticated()

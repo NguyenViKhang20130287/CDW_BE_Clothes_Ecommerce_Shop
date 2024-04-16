@@ -24,7 +24,7 @@ public class Promotion {
     @Column(name = "end_date")
     private String end_date;
     @Column(name = "status")
-    private int status;
+    private boolean status;
     @Column(name = "created_at")
     private String created_at;
     @Column(name = "updated_at")
