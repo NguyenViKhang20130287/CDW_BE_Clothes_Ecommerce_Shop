@@ -16,6 +16,7 @@ import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.PromotionRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.PromotionService;
 
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 
 @Service
 public class PromotionServiceImpl implements PromotionService {
@@ -65,5 +66,18 @@ public class PromotionServiceImpl implements PromotionService {
         }
 
         return promotionRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, sortBy)));
+    }
+
+    @Override
+    public Promotion getPromotionById(Long id) {
+        return promotionRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public Promotion createPromotion(Promotion promotion) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        promotion.setCreated_at(formatter.format(new java.util.Date()));
+        promotion.setUpdated_at(formatter.format(new java.util.Date()));
+        return promotionRepository.save(promotion);
     }
 }
