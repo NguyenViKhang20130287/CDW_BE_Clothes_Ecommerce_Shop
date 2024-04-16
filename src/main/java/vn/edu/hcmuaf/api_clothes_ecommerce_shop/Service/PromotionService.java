@@ -8,4 +8,5 @@ public interface PromotionService {
     Page<Promotion> getAllPromotion(String filter, int page, int perPage, String sortBy, String order);
     Promotion getPromotionById(Long id);
     Promotion createPromotion(Promotion promotion);
+    Promotion updatePromotion(Promotion promotion);
 }

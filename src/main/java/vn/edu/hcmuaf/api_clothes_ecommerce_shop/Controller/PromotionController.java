@@ -38,4 +38,9 @@ public class PromotionController {
         Promotion newPromotion = promotionService.createPromotion(promotion);
         return ResponseEntity.ok(newPromotion);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Promotion> updatePromotion(@PathVariable Long id, @RequestBody Promotion promotion) {
+        return ResponseEntity.ok(promotionService.updatePromotion(promotion));
+    }
 }

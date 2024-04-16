@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Product;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Promotion;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.PromotionRepository;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.UserRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.PromotionService;
 
 import java.nio.charset.StandardCharsets;
@@ -26,6 +27,7 @@ public class PromotionServiceImpl implements PromotionService {
     public PromotionServiceImpl(PromotionRepository promotionRepository) {
         this.promotionRepository = promotionRepository;
     }
+
     @Override
     public Page<Promotion> getAllPromotion(String filter, int page, int perPage, String sortBy, String order) {
         Sort.Direction direction = Sort.Direction.ASC;
@@ -44,13 +46,16 @@ public class PromotionServiceImpl implements PromotionService {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("name"), "%" + filterJson.get("name").asText() + "%"));
             }
             if (filterJson.has("discount_rate")) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("discount_rate"), filterJson.get("discount_rate").asDouble()));
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("discount_rate"), filterJson.get("discount_rate").asLong()));
             }
             if (filterJson.has("status")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("status"), filterJson.get("status").asBoolean()));
             }
-            if (filterJson.has("categoryId")) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("category").get("id"), filterJson.get("categoryId").asLong()));
+            if (filterJson.has("start_date")) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("start_date").get("id"), filterJson.get("start_date").asText()));
+            }
+            if (filterJson.has("end_date")) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("end_date").get("id"), filterJson.get("end_date").asText()));
             }
             return predicate;
         };
@@ -63,6 +68,12 @@ public class PromotionServiceImpl implements PromotionService {
         }
         if (sortBy.equals("status")) {
             return promotionRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "status")));
+        }
+        if (sortBy.equals("start_date")) {
+            return promotionRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "start_date")));
+        }
+        if (sortBy.equals("end_date")) {
+            return promotionRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "end_date")));
         }
 
         return promotionRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, sortBy)));
@@ -79,5 +90,17 @@ public class PromotionServiceImpl implements PromotionService {
         promotion.setCreated_at(formatter.format(new java.util.Date()));
         promotion.setUpdated_at(formatter.format(new java.util.Date()));
         return promotionRepository.save(promotion);
+    }
+
+    @Override
+    public Promotion updatePromotion(Promotion promotion) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Promotion newPromotion = promotionRepository.findById(promotion.getId()).orElse(null);
+        newPromotion.setName(promotion.getName());
+        newPromotion.setDescription(promotion.getDescription());
+        newPromotion.setDiscount_rate(promotion.getDiscount_rate());
+        newPromotion.setStatus(promotion.isStatus());
+        newPromotion.setUpdated_at(formatter.format(new java.util.Date()));
+        return promotionRepository.save(newPromotion);
     }
 }
