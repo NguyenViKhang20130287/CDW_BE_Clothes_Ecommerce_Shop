@@ -37,7 +37,7 @@ public class ProductServiceImpl implements ProductService {
             SizeRepository sizeRepository,
             ImageProductRepository imageProductRepository,
             UserRepository userRepository
-    ){
+    ) {
         this.productRepository = productRepository;
         this.colorSizeRepository = colorSizeRepository;
         this.colorRepository = colorRepository;
@@ -112,7 +112,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<Product> sortProduct(int pageNum, String sortBy, String orderBy) {
         Sort.Direction direction = Sort.Direction.ASC;
-        if (orderBy.equalsIgnoreCase("desc")){
+        if (orderBy.equalsIgnoreCase("desc")) {
             direction = Sort.Direction.DESC;
         }
         Sort sort = Sort.by(direction, sortBy);
@@ -131,7 +131,7 @@ public class ProductServiceImpl implements ProductService {
         product.setUpdatedBy(userRepository.findById(1L).orElse(null));
         product.setUpdatedAt(formatter.format(new Date()));
 
-        if(product.getThumbnail() == null) {
+        if (product.getThumbnail() == null) {
             product.setThumbnail("");
         }
         if (product.getImageProducts() == null) {
@@ -159,5 +159,46 @@ public class ProductServiceImpl implements ProductService {
         }
         return productRepository.save(newProduct);
     }
+
+    @Override
+    public Product updateProduct(long productId, Product productUpdate) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Product exitingProduct = productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException("Product not found"));
+        exitingProduct.setName(productUpdate.getName());
+        exitingProduct.setPrice(productUpdate.getPrice());
+        exitingProduct.setThumbnail(productUpdate.getThumbnail());
+        exitingProduct.setContent(productUpdate.getContent());
+        exitingProduct.setCategory(productUpdate.getCategory());
+        exitingProduct.setUpdatedAt(formatter.format(new Date()));
+        exitingProduct.setUpdatedBy(userRepository.findById(1L).orElse(null));
+        exitingProduct.setStatus(productUpdate.isStatus());
+
+        List<ColorSize> updatedColorSizes = new ArrayList<>();
+        for (ColorSize updatedColorSize : productUpdate.getColorSizes()) {
+            ColorSize exitingColorSize = exitingProduct.getColorSizes().stream().filter(v -> v.getId() == updatedColorSize.getId()).findFirst().orElse(null);
+            if (exitingColorSize != null) {
+                exitingColorSize.setColor(colorRepository.findById(updatedColorSize.getColor().getId()).orElse(null));
+                exitingColorSize.setSize(sizeRepository.findById(updatedColorSize.getSize().getId()).orElse(null));
+                exitingColorSize.setQuantity(updatedColorSize.getQuantity());
+                colorSizeRepository.save(exitingColorSize);
+                updatedColorSizes.add(colorSizeRepository.save(exitingColorSize));
+            } else {
+                ArrayList<ColorSize> colorSizes = new ArrayList<>();
+                for (ColorSize colorSize : productUpdate.getColorSizes()) {
+                    colorSize.setProduct(productUpdate);
+                    colorSize.setColor(colorRepository.findById(colorSize.getColor().getId()).orElse(null));
+                    colorSize.setSize(sizeRepository.findById(colorSize.getSize().getId()).orElse(null));
+                    colorSize.setQuantity(0);
+                    colorSizeRepository.save(colorSize);
+                    colorSizes.add(colorSize);
+                }
+            }
+
+        }
+
+
+        return productRepository.save(exitingProduct);
+    }
+
 
 }
