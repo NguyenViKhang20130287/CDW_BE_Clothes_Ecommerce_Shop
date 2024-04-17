@@ -17,6 +17,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.AuthService;
 
 import java.util.Arrays;
@@ -26,10 +28,8 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private UserDetailsService userDetailsService;
-
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
-
 
     @Autowired
     public SecurityConfig(UserDetailsService userDetailsService,
@@ -44,32 +44,6 @@ public class SecurityConfig {
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-//
-//    @Bean
-//    public DaoAuthenticationProvider authenticationProvider(AuthService authService) {
-//        DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
-//        auth.setUserDetailsService(authService);
-//        auth.setPasswordEncoder(passwordEncoder());
-//        return auth;
-//    }
-
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http.authorizeRequests(auth ->
-//                auth
-//                        // auth
-//                        .requestMatchers(HttpMethod.POST, "api/v1/auth/login").permitAll()
-//                        .requestMatchers(HttpMethod.POST, "api/v1/auth/register").permitAll()
-//                        .requestMatchers(HttpMethod.POST, "api/v1/auth/register/confirm").permitAll()
-//                        .requestMatchers(HttpMethod.POST, "api/v1/auth/forgot-password").permitAll()
-//                        .requestMatchers(HttpMethod.POST, "api/v1/auth/forgot-password/confirm").permitAll()
-//                        .anyRequest().permitAll()
-//        );
-//        http.httpBasic();
-//        http.csrf().disable();
-//        http.cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues());
-//        return http.build();
-//    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -94,7 +68,19 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues())
         ;
-
         return http.build();
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:3001")); // specify the allowed origin here
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+        configuration.setAllowCredentials(true);
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
