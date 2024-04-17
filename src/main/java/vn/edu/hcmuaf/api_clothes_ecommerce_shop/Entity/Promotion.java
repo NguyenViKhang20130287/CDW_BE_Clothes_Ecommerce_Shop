@@ -10,7 +10,7 @@ import java.util.List;
 @Table(name = "promotion")
 public class Promotion {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private long id;
     @Column(name = "name")
@@ -24,11 +24,15 @@ public class Promotion {
     @Column(name = "end_date")
     private String end_date;
     @Column(name = "status")
-    private int status;
+    private boolean status;
     @Column(name = "created_at")
     private String created_at;
+    @Column(name = "created_by")
+    private String created_by;
     @Column(name = "updated_at")
     private String updated_at;
+    @Column(name = "updated_by")
+    private String updated_by;
 
     @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL)
     private List<ProductPromotion> productPromotions;
