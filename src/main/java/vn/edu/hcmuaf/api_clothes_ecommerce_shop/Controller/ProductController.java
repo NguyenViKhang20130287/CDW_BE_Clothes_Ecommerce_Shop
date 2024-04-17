@@ -44,8 +44,22 @@ public class ProductController {
         return ResponseEntity.ok(product);
     }
 
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<Page<Product>> getProductsByCategory(@PathVariable Long categoryId,
+                                                               @RequestParam(defaultValue = "0") int page,
+                                                               @RequestParam(defaultValue = "25") int perPage,
+                                                               @RequestParam(defaultValue = "name") String sort,
+                                                               @RequestParam(defaultValue = "DESC") String order) {
+        Page<Product> products = productService.getProductsByCategory(categoryId, page, perPage, sort, order);
+        return ResponseEntity.ok(products);
+    }
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
        return ResponseEntity.ok(productService.createProduct(product));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
+        return ResponseEntity.ok(productService.updateProduct(id, product));
     }
 }
