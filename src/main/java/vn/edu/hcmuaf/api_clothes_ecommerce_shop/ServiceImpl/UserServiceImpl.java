@@ -3,6 +3,7 @@ package vn.edu.hcmuaf.api_clothes_ecommerce_shop.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Config.EmailConfig;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.UserDTO;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Permission;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.User;
@@ -26,6 +28,7 @@ import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.UserRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.UserService;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,6 +39,8 @@ public class UserServiceImpl implements UserService {
     private UserInformationRepository userInformationRepository;
     private PasswordEncoder passwordEncoder;
     private PermissionRepository permissionRepository;
+    private EntityManager entityManager;
+    private EmailConfig emailConfig;
 
     @Autowired
     public UserServiceImpl(
@@ -143,26 +148,31 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<?> edit(UserDTO userDTO) {
-//        UserInformation userCheck = userInformationRepository.findByEmailOrUserUsername(userDTO.getEmail(),
-//                userDTO.getUsername()).orElse(null);
-//        if (userCheck == null) return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
-//        User user = new User();
-//        user.setPassword(passwordEncoder.encode(userDTO.getNewPassword()));
-//        user.setIsAdmin(userDTO.getRole());
-//        user.setStatus(true);
-//        userRepository.save(user);
-//        System.out.println("Create user successful");
-//
-//        UserInformation userInfo = new UserInformation();
-//        userInfo.setEmail(userDTO.getEmail());
-//        userInfo.setAddress(userDTO.getAddress());
-//        userInfo.setFullName(userDTO.getFullName());
-//        userInfo.setPhone(userDTO.getPhone());
-//        userInfo.setAvatar(null);
-//        userInfo.setUser(user);
-//        userInformationRepository.save(userInfo);
-//        System.out.println("Create user info successful");
-        return null;
+    public ResponseEntity<?> edit(long id, UserDTO userDTO) {
+        UserInformation userInfo = userInformationRepository.findByUserId(id).orElse(null);
+        if (userInfo == null) return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+//        UserInformation userInfoCheckUsernameOrEmail = userInformationRepository
+//                .findByEmailOrUserUsername(userDTO.getEmail(), userDTO.getUsername()).orElse(null);
+//        if (userInfoCheckUsernameOrEmail != null)
+//            return new ResponseEntity<>("Username or email already exist", HttpStatus.BAD_REQUEST);
+        String generatePassword = String.format("%04d", (int) (Math.random() * 1000000));
+        Permission permission = permissionRepository.findById(userDTO.getPermission()).orElse(null);
+
+        User user = userInfo.getUser();
+        user.setPassword(passwordEncoder.encode(generatePassword));
+        user.setStatus(userDTO.isStatus());
+        user.setPermission(permission);
+        userRepository.save(user);
+//        emailConfig.send("");
+
+        userInfo.setUser(user);
+        userInfo.setFullName(userInfo.getFullName());
+        userInfo.setEmail(userDTO.getEmail());
+        userInfo.setAddress(userDTO.getAddress());
+        userInfo.setPhone(userDTO.getPhone());
+        userInfo.setAvatar(userDTO.getAvatar());
+        userInfo.setUpdatedAt(LocalDateTime.now());
+        userInformationRepository.save(userInfo);
+        return new ResponseEntity<>(userInfo, HttpStatus.OK);
     }
 }
