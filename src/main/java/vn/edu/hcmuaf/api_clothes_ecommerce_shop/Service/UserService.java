@@ -18,5 +18,5 @@ public interface UserService {
     UserInformation findByEmailOrUsername(String email, String username);
     ResponseEntity<?> createNew(UserDTO userDTO);
     UserInformation findByUserId(long id);
-    ResponseEntity<?> edit(UserDTO userDTO);
+    ResponseEntity<?> edit(long id, UserDTO userDTO);
 }

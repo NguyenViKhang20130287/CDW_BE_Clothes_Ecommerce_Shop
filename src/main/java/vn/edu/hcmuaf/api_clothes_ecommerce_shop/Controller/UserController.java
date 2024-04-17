@@ -74,6 +74,14 @@ public class UserController {
         return ResponseEntity.ok(userService.createNew(userDTO));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> editUser(
+            @PathVariable long id,
+            @RequestBody UserDTO userDTO
+    ){
+        return ResponseEntity.ok(userService.edit(id, userDTO));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable long id){
         return ResponseEntity.ok(userService.findByUserId(id));
