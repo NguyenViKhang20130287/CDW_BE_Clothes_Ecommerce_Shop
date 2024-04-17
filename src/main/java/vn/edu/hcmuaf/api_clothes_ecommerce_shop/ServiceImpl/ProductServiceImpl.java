@@ -105,6 +105,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Page<Product> getProductsByCategory(Long categoryId, int page, int perPage, String sortBy, String order) {
+        Sort.Direction direction = Sort.Direction.ASC;
+        if (order.equalsIgnoreCase("DESC"))
+            direction = Sort.Direction.DESC;
+        return productRepository.findAllByCategoryId(categoryId, PageRequest.of(page, perPage, Sort.by(direction, sortBy)));
+    }
+
+    @Override
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
     }
