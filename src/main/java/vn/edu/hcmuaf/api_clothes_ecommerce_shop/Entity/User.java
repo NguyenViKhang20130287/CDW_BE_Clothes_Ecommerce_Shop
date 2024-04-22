@@ -32,28 +32,27 @@ public class User implements UserDetails {
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_info_id", referencedColumnName = "id", nullable = false)
+    private UserInformation userInformation;
+
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "permission_id", referencedColumnName = "id", nullable = false)
     private Permission permission;
 
     @Column(name = "status")
     private boolean status;
 
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    private List<Permission> permissions;
-
-    @JsonIgnore
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Review> reviews;
 
-    @JsonIgnore
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Order> orders;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-//        if (isAdmin == 1) return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
-//        return List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
         return List.of(new SimpleGrantedAuthority("ROLE_" + permission.getName()));
     }
 

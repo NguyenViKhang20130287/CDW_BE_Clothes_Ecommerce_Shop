@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.UserDTO;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.User;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.UserInformation;
@@ -23,7 +24,7 @@ public class UserController {
     }
 
     @GetMapping("")
-    public Page<UserInformation> getAll(
+    public Page<User> getAll(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int perPage,
             @RequestParam(defaultValue = "fullName") String sort,
@@ -31,11 +32,6 @@ public class UserController {
             @RequestParam(defaultValue = "") String filter
     ) {
         return userService.findAll(page, perPage, sort, order, filter);
-    }
-
-    @GetMapping("/all")
-    public ResponseEntity<?> findAll() {
-        return ResponseEntity.ok(userService.findAll());
     }
 
     @GetMapping("/find-by-username")
@@ -51,39 +47,46 @@ public class UserController {
     @GetMapping("/find-by-email")
     public ResponseEntity<?> findByEmail(@RequestParam String email) {
         try {
-            UserInformation userResult = userService.findByEmail(email);
+            User userResult = userService.findByEmail(email);
             return ResponseEntity.ok(userResult);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
-    @GetMapping("/find-by-email-or-username")
+    @GetMapping("/find-by-username-or-email")
     public ResponseEntity<?> findByEmailOrUsername(
-            @RequestParam String email,
-            @RequestParam String username
+            @RequestParam String username,
+            @RequestParam String email
     ) {
-        return ResponseEntity.ok(userService.findByEmailOrUsername(email, username));
+        return ResponseEntity.ok(userService.findByEmailOrUsername(username, email));
     }
 
     // create new user
     @PostMapping("")
     public ResponseEntity<?> createNewUser(
-            @RequestBody UserDTO userDTO
-    ) {
+            @ModelAttribute UserDTO userDTO
+            ) {
         return ResponseEntity.ok(userService.createNew(userDTO));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> editUser(
             @PathVariable long id,
-            @RequestBody UserDTO userDTO
-    ){
+            @ModelAttribute UserDTO userDTO
+    ) {
         return ResponseEntity.ok(userService.edit(id, userDTO));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(
+            @PathVariable long id
+    ) {
+        return ResponseEntity.ok(userService.delete(id));
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable long id){
-        return ResponseEntity.ok(userService.findByUserId(id));
+    public ResponseEntity<?> findById(@PathVariable long id) {
+        return ResponseEntity.ok(userService.findById(id));
     }
 }

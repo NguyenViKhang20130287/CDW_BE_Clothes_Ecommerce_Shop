@@ -70,21 +70,22 @@ public class AuthServiceImpl implements AuthService {
 
         Permission permission = permissionRepository.findByName("CUSTOMER").orElse(null);
 
-        var user = User.builder()
-                .username(userDTO.getUsername())
-                .password(passwordEncoder.encode(userDTO.getPassword()))
-                .permission(permission)
-                .status(true)
-                .build();
-        userRepository.save(user);
         var userInfo = UserInformation.builder()
-                .user(user)
                 .fullName(null)
                 .email(userDTO.getEmail())
                 .createdAt(LocalDateTime.now())
                 .build();
         userInformationRepository.save(userInfo);
-        //
+
+        var user = User.builder()
+                .username(userDTO.getUsername())
+                .password(passwordEncoder.encode(userDTO.getPassword()))
+                .userInformation(userInfo)
+                .permission(permission)
+                .status(true)
+                .build();
+        userRepository.save(user);
+
         otpConfig.clearOtp(mapOTP, userDTO.getEmail());
         var jwtToken = jwtService.generateToken(user);
         return new ResponseEntity<>(
@@ -120,8 +121,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ResponseEntity<?> forgot(String email) {
-        UserInformation userInformation = findByEmail(email);
-        if (userInformation == null)
+        User user = userRepository.findByUserInformationEmail(email).orElse(null);
+        if (user == null)
             return new ResponseEntity<>("User doesn't exist", HttpStatus.BAD_REQUEST);
         otpConfig.clearOtp(mapOTP, email);
         String otp = otpConfig.generateOtp(mapOTP, email);
@@ -137,13 +138,9 @@ public class AuthServiceImpl implements AuthService {
         if (!mapOTP.get(userDTO.getEmail()).equals(userDTO.getOtp()))
             return new ResponseEntity<>("OTP invalid!!!", HttpStatus.BAD_REQUEST);
 
-        UserInformation userInfo = userInformationRepository.findByEmail(userDTO.getEmail()).orElse(null);
-        assert userInfo != null;
-        User user = userInfo.getUser();
+        User user = userRepository.findByUserInformationEmail(userDTO.getEmail()).orElse(null);
+        assert user != null;
         user.setPassword(passwordEncoder.encode(userDTO.getNewPassword()));
-//        var user = User.builder()
-//                .password(passwordEncoder.encode(userDTO.getNewPassword()))
-//                .build();
         userRepository.save(user);
         otpConfig.clearOtp(mapOTP, userDTO.getEmail());
         var jwtToken = jwtService.generateToken(user);
@@ -153,18 +150,4 @@ public class AuthServiceImpl implements AuthService {
                         .build(),
                 HttpStatus.OK);
     }
-
-//    @Override
-//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-//        User user = findByUsername(username);
-//        if (user == null) {
-//            throw new UsernameNotFoundException("Invalid email or password !!!");
-//        }
-//        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
-//                Collections.singleton(
-//                        new SimpleGrantedAuthority(user.getIsAdmin() == 0 ? "ROLE_ADMIN" : "ROLE_CUSTOMER"
-//                        )
-//                )
-//        );
-//    }
 }

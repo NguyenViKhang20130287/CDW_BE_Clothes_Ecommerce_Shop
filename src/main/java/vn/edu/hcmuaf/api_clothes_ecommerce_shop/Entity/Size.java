@@ -1,6 +1,7 @@
 package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,6 +19,7 @@ public class Size {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private long id;
+
     @Column(name = "name")
     private String name;
 
@@ -29,7 +31,7 @@ public class Size {
     @OneToMany(mappedBy = "size", cascade = CascadeType.ALL)
     private List<Warehouse> warehouses;
 
-    @JsonIgnore
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @OneToMany(mappedBy = "size", cascade = CascadeType.ALL)
     private List<OrderDetails> orderDetails;
 

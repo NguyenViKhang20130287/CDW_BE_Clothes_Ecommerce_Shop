@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
 
 @Data
 @Builder
@@ -22,5 +25,6 @@ public class UserDTO {
     private String address;
     private int permission;
     private String phone;
-    private String avatar;
+//    private String avatar;
+    private MultipartFile avatar;
 }

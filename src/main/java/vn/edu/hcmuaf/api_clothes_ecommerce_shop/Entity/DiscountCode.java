@@ -43,7 +43,4 @@ public class DiscountCode {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "updated_by", nullable = false)
     private User updatedBy;
-
-    @OneToMany(mappedBy = "discountCode", cascade = CascadeType.ALL)
-    private List<Order> orders;
 }
