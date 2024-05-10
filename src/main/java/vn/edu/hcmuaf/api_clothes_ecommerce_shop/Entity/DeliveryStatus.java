@@ -15,6 +15,4 @@ public class DeliveryStatus {
     private long id;
     @Column(name = "name")
     private String name;
-    @OneToMany(mappedBy = "deliveryStatus", cascade = CascadeType.ALL)
-    private List<Order> orders;
 }
