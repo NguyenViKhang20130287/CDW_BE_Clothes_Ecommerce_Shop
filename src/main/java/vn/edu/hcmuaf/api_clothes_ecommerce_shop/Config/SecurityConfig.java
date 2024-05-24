@@ -70,7 +70,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/size/**").permitAll()
                 .requestMatchers("/api/v1/promotion/**").permitAll()
                 .requestMatchers("/api/v1/warehouse/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/test/").hasRole("ADMIN")
+                .requestMatchers( "/api/v1/test/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()

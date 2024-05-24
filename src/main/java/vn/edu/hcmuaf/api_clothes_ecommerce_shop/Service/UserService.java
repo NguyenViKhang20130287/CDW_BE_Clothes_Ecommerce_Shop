@@ -18,5 +18,6 @@ public interface UserService {
     ResponseEntity<?> createNew(UserDTO userDTO);
     ResponseEntity<?> edit(long id, UserDTO userDTO);
     ResponseEntity<?> delete(long id);
+    ResponseEntity<?> loadDataUser(String token);
 
 }
