@@ -1,5 +1,6 @@
 package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -34,6 +35,4 @@ public class Promotion {
     @Column(name = "updated_by")
     private String updated_by;
 
-    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL)
-    private List<ProductPromotion> productPromotions;
 }

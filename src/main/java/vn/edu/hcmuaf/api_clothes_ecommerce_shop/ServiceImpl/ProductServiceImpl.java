@@ -208,5 +208,13 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.save(exitingProduct);
     }
 
+    @Override
+    public List<Product> getRelatedProducts(long productId) {
+        Product currentProduct = productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException("Product not found"));
+        Long categoryId = currentProduct.getCategory().getId();
+
+        Pageable pageable = PageRequest.of(0, 4); // Get the first 4 products
+        return productRepository.findRelatedProducts(categoryId, productId, pageable);
+    }
 
 }

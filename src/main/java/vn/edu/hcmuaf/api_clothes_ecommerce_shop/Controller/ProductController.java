@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Product;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.ProductService;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/product")
@@ -61,5 +63,10 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
         return ResponseEntity.ok(productService.updateProduct(id, product));
+    }
+
+    @GetMapping("/{productId}/related")
+    public ResponseEntity<List<Product>> getRelatedProducts(@PathVariable Long productId) {
+        return ResponseEntity.ok(productService.getRelatedProducts(productId));
     }
 }
