@@ -66,7 +66,7 @@ public class UserController {
     @PostMapping("")
     public ResponseEntity<?> createNewUser(
             @ModelAttribute UserDTO userDTO
-            ) {
+    ) {
         return ResponseEntity.ok(userService.createNew(userDTO));
     }
 
@@ -89,4 +89,12 @@ public class UserController {
     public ResponseEntity<?> findById(@PathVariable long id) {
         return ResponseEntity.ok(userService.findById(id));
     }
+
+    @GetMapping("/user-details")
+    public ResponseEntity<?> loadDataUser(
+            @RequestParam String token
+    ) {
+        return userService.loadDataUser(token);
+    }
+
 }
