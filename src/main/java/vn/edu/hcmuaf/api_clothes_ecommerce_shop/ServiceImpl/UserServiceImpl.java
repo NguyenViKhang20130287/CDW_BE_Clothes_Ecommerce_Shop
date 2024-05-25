@@ -3,6 +3,7 @@ package vn.edu.hcmuaf.api_clothes_ecommerce_shop.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Claims;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
@@ -22,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Config.EmailConfig;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Config.JwtService;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.UserDTO;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.*;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Image.ImageBBService;
@@ -50,6 +52,7 @@ public class UserServiceImpl implements UserService {
     private OrderDetailRepository orderDetailRepository;
     private EmailConfig emailConfig;
     private ImageBBService imageBBService;
+    private JwtService jwtService;
 
 
     @Autowired
@@ -61,7 +64,8 @@ public class UserServiceImpl implements UserService {
             ReviewRepository reviewRepository,
             OrderRepository orderRepository,
             OrderDetailRepository orderDetailRepository,
-            ImageBBService imageBBService
+            ImageBBService imageBBService,
+            JwtService jwtService
     ) {
         this.userRepository = userRepository;
         this.userInformationRepository = userInformationRepository;
@@ -71,6 +75,7 @@ public class UserServiceImpl implements UserService {
         this.orderRepository = orderRepository;
         this.orderDetailRepository = orderDetailRepository;
         this.imageBBService = imageBBService;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -242,6 +247,16 @@ public class UserServiceImpl implements UserService {
         }
 
         return new ResponseEntity<>("Delete user has id: " + id + " successful", HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> loadDataUser(String token) {
+        Claims claims = jwtService.decode(token);
+        if (claims == null) return new ResponseEntity<>("Token not found !", HttpStatus.BAD_REQUEST);
+        String username = claims.getSubject();
+        User user = findByUsername(username);
+        if (user == null) return new ResponseEntity<>("User not found !", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
 

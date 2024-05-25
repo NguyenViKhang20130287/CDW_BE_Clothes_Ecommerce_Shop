@@ -50,7 +50,7 @@ public class AuthServiceImpl implements AuthService {
     public ResponseEntity<?> register(String email) {
         UserInformation userInformation = findByEmail(email);
         if (userInformation != null)
-            return new ResponseEntity<>("User already exist", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Email đã được đăng kí!", HttpStatus.BAD_REQUEST);
 
         otpConfig.clearOtp(mapOTP, email);
         String otp = otpConfig.generateOtp(mapOTP, email);
@@ -62,11 +62,11 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ResponseEntity<?> registerConfirm(UserDTO userDTO) {
         if (!otpConfig.checkEmailIsValid(mapOTP, userDTO.getEmail()))
-            return new ResponseEntity<>("OTP has expired!!!", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("OTP hết hạn!", HttpStatus.BAD_REQUEST);
         if (!mapOTP.get(userDTO.getEmail()).equals(userDTO.getOtp()))
-            return new ResponseEntity<>("OTP invalid!!!", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("OTP không hợp lệ!", HttpStatus.BAD_REQUEST);
         User userCheck = userRepository.findByUsername(userDTO.getUsername()).orElse(null);
-        if (userCheck != null) return new ResponseEntity<>("Username already exist", HttpStatus.BAD_REQUEST);
+        if (userCheck != null) return new ResponseEntity<>("Email đã được đăng kí!", HttpStatus.BAD_REQUEST);
 
         Permission permission = permissionRepository.findByName("CUSTOMER").orElse(null);
 
@@ -106,24 +106,25 @@ public class AuthServiceImpl implements AuthService {
                                 authenticationRequest.getPassword()
                         )
                 );
-                var user = userRepository.findByUsername(authenticationRequest.getUsername()).orElseThrow();
-                var jwtToken = jwtService.generateToken(user);
+//                var user = userRepository.findByUsername(authenticationRequest.getUsername()).orElseThrow();
+                var jwtToken = jwtService.generateToken(userCheck);
                 return new ResponseEntity<>(AuthenticationResponse
                         .builder()
                         .token(jwtToken)
+                        .permission(userCheck.getPermission().getName())
                         .build(),
                         HttpStatus.OK);
             }
 
         }
-        return new ResponseEntity<>("Username or password incorrect", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Username hoặc mật khẩu không đúng !", HttpStatus.BAD_REQUEST);
     }
 
     @Override
     public ResponseEntity<?> forgot(String email) {
         User user = userRepository.findByUserInformationEmail(email).orElse(null);
         if (user == null)
-            return new ResponseEntity<>("User doesn't exist", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Email chưa được đăng kí !", HttpStatus.BAD_REQUEST);
         otpConfig.clearOtp(mapOTP, email);
         String otp = otpConfig.generateOtp(mapOTP, email);
         emailConfig.send("RESET PASSWORD", email, otp);
@@ -134,9 +135,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ResponseEntity<?> reset(UserDTO userDTO) {
         if (!otpConfig.checkEmailIsValid(mapOTP, userDTO.getEmail()))
-            return new ResponseEntity<>("OTP has expired!!!", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("OTP hết hạn!", HttpStatus.BAD_REQUEST);
         if (!mapOTP.get(userDTO.getEmail()).equals(userDTO.getOtp()))
-            return new ResponseEntity<>("OTP invalid!!!", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("OTP không hợp lệ!", HttpStatus.BAD_REQUEST);
 
         User user = userRepository.findByUserInformationEmail(userDTO.getEmail()).orElse(null);
         assert user != null;
