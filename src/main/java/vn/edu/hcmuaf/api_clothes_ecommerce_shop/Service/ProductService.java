@@ -19,4 +19,5 @@ public interface ProductService {
     Product updateProduct(long productId, Product productUpdate);
 
     List<Product> getRelatedProducts(long productId);
+    List<Product> searchProductsByName(String name);
 }

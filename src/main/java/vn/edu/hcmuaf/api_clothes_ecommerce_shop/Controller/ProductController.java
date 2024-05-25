@@ -69,4 +69,8 @@ public class ProductController {
     public ResponseEntity<List<Product>> getRelatedProducts(@PathVariable Long productId) {
         return ResponseEntity.ok(productService.getRelatedProducts(productId));
     }
+    @GetMapping("/search")
+    public List<Product> searchProducts(@RequestParam String name) {
+        return productService.searchProductsByName(name);
+    }
 }

@@ -216,5 +216,9 @@ public class ProductServiceImpl implements ProductService {
         Pageable pageable = PageRequest.of(0, 4); // Get the first 4 products
         return productRepository.findRelatedProducts(categoryId, productId, pageable);
     }
+    @Override
+    public List<Product> searchProductsByName(String name) {
+        return productRepository.findByNameContaining(name);
+    }
 
 }
