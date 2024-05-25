@@ -35,10 +35,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -200,7 +199,7 @@ public class UserServiceImpl implements UserService {
             System.out.println("Password generate: " + generatePassword);
             System.out.println("Permission: " + userDTO.getPermission());
             Permission permission = permissionRepository.findById(userDTO.getPermission()).orElse(null);
-            if (userDTO.getAvatar() != null){
+            if (userDTO.getAvatar() != null) {
                 byte[] imgBytes = userDTO.getAvatar().getBytes();
                 String base64String = imageBBService.convertByteArrayToBase64(imgBytes);
                 String imgUrl = imageBBService.uploadImage(base64String);
@@ -251,11 +250,36 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<?> loadDataUser(String token) {
-        Claims claims = jwtService.decode(token);
-        if (claims == null) return new ResponseEntity<>("Token not found !", HttpStatus.BAD_REQUEST);
-        String username = claims.getSubject();
-        User user = findByUsername(username);
-        if (user == null) return new ResponseEntity<>("User not found !", HttpStatus.BAD_REQUEST);
+
+        if (token == null) return new ResponseEntity<>("Token expired !", HttpStatus.BAD_REQUEST);
+        try {
+            Claims claims = jwtService.decode(token);
+            Date expirationDate = claims.getExpiration();
+            System.out.println(!expirationDate.before(new Date()));
+            String username = claims.getSubject();
+            User user = findByUsername(username);
+            if (user == null) return new ResponseEntity<>("User not found !", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Token expired !", HttpStatus.OK);
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> editUser(UserDTO userDTO) {
+        User user = findByUsername(userDTO.getUsername());
+        if (user == null) return new ResponseEntity<>("Tài khoản không tồn tại !", HttpStatus.BAD_REQUEST);
+        String fullName = userDTO.getFullName();
+        String email = userDTO.getEmail();
+        String avatar = userDTO.getAvatarLink();
+        String phone = userDTO.getPhone();
+        user.getUserInformation().setUpdatedAt(LocalDateTime.now());
+        user.getUserInformation().setEmail(email);
+        user.getUserInformation().setFullName(fullName);
+        user.getUserInformation().setPhone(phone);
+        user.getUserInformation().setAvatar(avatar);
+        userRepository.save(user);
+        System.out.println("Edit user: " + user.getUsername() + " success");
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 

@@ -97,4 +97,11 @@ public class UserController {
         return userService.loadDataUser(token);
     }
 
+    @PutMapping("/user-details/edit")
+    public ResponseEntity<?> editUser(
+            @RequestBody UserDTO userDTO
+    ) {
+        return userService.editUser(userDTO);
+    }
+
 }
