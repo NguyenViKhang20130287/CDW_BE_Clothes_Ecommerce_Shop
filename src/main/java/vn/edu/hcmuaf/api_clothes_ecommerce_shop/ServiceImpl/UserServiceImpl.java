@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Config.EmailConfig;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Config.JwtService;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.AddressDTO;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.UserDTO;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.*;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Image.ImageBBService;
@@ -52,6 +53,7 @@ public class UserServiceImpl implements UserService {
     private EmailConfig emailConfig;
     private ImageBBService imageBBService;
     private JwtService jwtService;
+    private AddressRepository addressRepository;
 
 
     @Autowired
@@ -64,7 +66,8 @@ public class UserServiceImpl implements UserService {
             OrderRepository orderRepository,
             OrderDetailRepository orderDetailRepository,
             ImageBBService imageBBService,
-            JwtService jwtService
+            JwtService jwtService,
+            AddressRepository addressRepository
     ) {
         this.userRepository = userRepository;
         this.userInformationRepository = userInformationRepository;
@@ -75,6 +78,7 @@ public class UserServiceImpl implements UserService {
         this.orderDetailRepository = orderDetailRepository;
         this.imageBBService = imageBBService;
         this.jwtService = jwtService;
+        this.addressRepository = addressRepository;
     }
 
     @Override
@@ -254,8 +258,6 @@ public class UserServiceImpl implements UserService {
         if (token == null) return new ResponseEntity<>("Token expired !", HttpStatus.BAD_REQUEST);
         try {
             Claims claims = jwtService.decode(token);
-            Date expirationDate = claims.getExpiration();
-            System.out.println(!expirationDate.before(new Date()));
             String username = claims.getSubject();
             User user = findByUsername(username);
             if (user == null) return new ResponseEntity<>("User not found !", HttpStatus.BAD_REQUEST);
@@ -283,5 +285,31 @@ public class UserServiceImpl implements UserService {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-
+    @Override
+    public ResponseEntity<?> addNewAddress(String username, AddressDTO addressDTO) {
+        try {
+            User user = findByUsername(username);
+            if (addressDTO.isDefault()){
+                List<Address> addresses = user.getAddresses();
+                for (Address ar : addresses){
+                    ar.setDefault(false);
+                }
+            }
+            userRepository.save(user);
+            Address address = new Address();
+            address.setUser(user);
+            address.setFullName(addressDTO.getFullName());
+            address.setPhone(addressDTO.getPhone());
+            address.setStreet(addressDTO.getStreet());
+            address.setWard(addressDTO.getWard());
+            address.setDistrict(addressDTO.getDistrict());
+            address.setProvince(addressDTO.getProvince());
+            address.setDefault(addressDTO.isDefault());
+            address.setCreatedAt(String.valueOf(LocalDateTime.now()));
+            addressRepository.save(address);
+            return new ResponseEntity<>(address, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Lỗi thao tác !", HttpStatus.BAD_REQUEST);
+        }
+    }
 }

@@ -3,6 +3,7 @@ package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.AddressDTO;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.UserDTO;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.User;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.UserInformation;
@@ -20,5 +21,6 @@ public interface UserService {
     ResponseEntity<?> delete(long id);
     ResponseEntity<?> loadDataUser(String token);
     ResponseEntity<?> editUser(UserDTO userDTO);
+    ResponseEntity<?> addNewAddress(String username, AddressDTO addressDTO);
 
 }

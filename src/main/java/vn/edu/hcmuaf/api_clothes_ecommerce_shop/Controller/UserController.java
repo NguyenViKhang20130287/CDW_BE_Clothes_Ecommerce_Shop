@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.AddressDTO;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.UserDTO;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.User;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.UserInformation;
@@ -104,4 +105,11 @@ public class UserController {
         return userService.editUser(userDTO);
     }
 
+    @PostMapping("/user-details/add-new-address")
+    public ResponseEntity<?> addNewAddress(
+            @RequestParam String username,
+            @RequestBody AddressDTO addressDTO
+    ) {
+        return userService.addNewAddress(username, addressDTO);
+    }
 }
