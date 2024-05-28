@@ -31,7 +31,7 @@ public class Size {
     @OneToMany(mappedBy = "size", cascade = CascadeType.ALL)
     private List<Warehouse> warehouses;
 
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnore
     @OneToMany(mappedBy = "size", cascade = CascadeType.ALL)
     private List<OrderDetails> orderDetails;
 
