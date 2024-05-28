@@ -10,7 +10,7 @@ public interface ProductService {
     List<Product> getProductsStatusTrue();
     Product getProductById(Long id);
     Page<Product> getAllProducts(String filter, int page, int perPage, String sortBy, String order);
-    Page<Product> getProductsByCategory(Long categoryId, int page, int perPage, String sortBy, String order);
+    Page<Product> getProductsByCategory(Long categoryId,String filter, int page, int perPage, String sortBy, String order);
     void deleteProduct(Long id);
     Page<Product> sortProduct(int pageNum, String sortBy, String orderBy);
 
