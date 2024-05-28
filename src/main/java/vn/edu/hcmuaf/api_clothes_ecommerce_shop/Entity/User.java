@@ -56,6 +56,10 @@ public class User implements UserDetails {
         return List.of(new SimpleGrantedAuthority("ROLE_" + permission.getName()));
     }
 
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Address> addresses;
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
