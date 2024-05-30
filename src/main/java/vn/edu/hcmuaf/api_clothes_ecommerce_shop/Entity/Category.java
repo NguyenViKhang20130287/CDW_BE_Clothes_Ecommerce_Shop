@@ -25,20 +25,20 @@ public class Category {
     private boolean status;
 
     @Column(name = "created_at")
-    private String created_at;
+    private String createdAt;
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
-    private User created_by;
+    private User createdBy;
 
     @Column(name = "updated_at")
-    private String updated_at;
+    private String updatedAt;
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "updated_by")
-    private User updated_by;
+    private User updatedBy;
 
     @JsonIgnore
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)

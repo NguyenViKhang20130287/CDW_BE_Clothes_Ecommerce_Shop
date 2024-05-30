@@ -26,6 +26,11 @@ public class ColorServiceImpl implements ColorService {
     private ColorRepository colorRepository;
 
     @Override
+    public Color getColorById(Long id) {
+        return colorRepository.findById(id).orElse(null);
+    }
+
+    @Override
     public Page<Color> getAllColor(String filter, int start, int end, String sortBy, String order) {
         Sort.Direction direction = Sort.Direction.ASC;
         if (order.equalsIgnoreCase("DESC"))

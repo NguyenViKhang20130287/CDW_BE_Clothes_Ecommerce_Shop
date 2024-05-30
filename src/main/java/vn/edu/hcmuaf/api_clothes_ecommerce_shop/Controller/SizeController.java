@@ -4,10 +4,7 @@ package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Size;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.SizeService;
 
@@ -29,5 +26,10 @@ public class SizeController {
                                                  @RequestParam(defaultValue = "DESC") String order) {
         Page<Size> sizes = sizeService.getAllSize(filter, page, perPage, sort, order);
         return ResponseEntity.ok(sizes);
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<Size> getSizeById(@PathVariable long id) {
+        Size size = sizeService.getSizeById(id);
+        return ResponseEntity.ok(size);
     }
 }

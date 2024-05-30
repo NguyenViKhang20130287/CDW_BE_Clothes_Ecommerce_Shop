@@ -78,4 +78,9 @@ public class ProductController {
     public List<Product> searchProducts(@RequestParam String name) {
         return productService.searchProductsByName(name);
     }
+
+    @GetMapping("/ids")
+    public ResponseEntity<?> getAllProducts(@RequestParam(defaultValue = "{}") String ids) {
+        return ResponseEntity.ok(productService.getProductsByIds(ids));
+    }
 }

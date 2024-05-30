@@ -78,8 +78,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Category createCategory(Category category) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        category.setCreated_at(formatter.format(new Date()));
-        category.setUpdated_at(formatter.format(new Date()));
+        category.setCreatedAt(formatter.format(new Date()));
+        category.setUpdatedAt(formatter.format(new Date()));
         return categoryRepository.save(category);
     }
 
@@ -89,7 +89,7 @@ public class CategoryServiceImpl implements CategoryService {
         categoryUpdate.setName(category.getName());
         categoryUpdate.setStatus(category.isStatus());
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        categoryUpdate.setUpdated_at(formatter.format(new Date()));
+        categoryUpdate.setUpdatedAt(formatter.format(new Date()));
         return categoryRepository.save(categoryUpdate);
     }
 
