@@ -6,5 +6,6 @@ import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Category;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Color;
 
 public interface ColorService {
+    Color getColorById(Long id);
     Page<Color> getAllColor(String filter, int start, int end, String sortBy, String order);
 }

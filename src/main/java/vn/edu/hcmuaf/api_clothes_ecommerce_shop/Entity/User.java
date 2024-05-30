@@ -51,10 +51,27 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Order> orders;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
+    private List<Product> products;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "updatedBy", cascade = CascadeType.ALL)
+    private List<Product> updatedProducts;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
+    private List<Category> categories;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "updatedBy", cascade = CascadeType.ALL)
+    private List<Category> updatedCategories;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + permission.getName()));
     }
+
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

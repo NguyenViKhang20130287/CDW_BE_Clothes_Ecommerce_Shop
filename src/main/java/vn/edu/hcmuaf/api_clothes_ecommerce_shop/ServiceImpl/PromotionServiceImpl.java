@@ -10,14 +10,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Product;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.PromotionDto;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Promotion;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.PromotionRepository;
-import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.UserRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.PromotionService;
 
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 @Service
 public class PromotionServiceImpl implements PromotionService {
@@ -29,7 +29,7 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     @Override
-    public Page<Promotion> getAllPromotion(String filter, int page, int perPage, String sortBy, String order) {
+    public Page<PromotionDto> getAllPromotion(String filter, int page, int perPage, String sortBy, String order) {
         Sort.Direction direction = Sort.Direction.ASC;
         if (order.equalsIgnoreCase("DESC"))
             direction = Sort.Direction.DESC;
@@ -60,23 +60,14 @@ public class PromotionServiceImpl implements PromotionService {
             return predicate;
         };
 
-        if (sortBy.equals("discount_rate")) {
-            return promotionRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "discount_rate")));
-        }
-        if (sortBy.equals("name")) {
-            return promotionRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "name")));
-        }
-        if (sortBy.equals("status")) {
-            return promotionRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "status")));
-        }
-        if (sortBy.equals("start_date")) {
-            return promotionRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "start_date")));
-        }
-        if (sortBy.equals("end_date")) {
-            return promotionRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "end_date")));
-        }
-
-        return promotionRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, sortBy)));
+        return switch (sortBy) {
+            case "name" ->
+                    promotionRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "name"))).map(PromotionDto::from);
+            case "status" ->
+                    promotionRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "status"))).map(PromotionDto::from);
+            default ->
+                    promotionRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, sortBy))).map(PromotionDto::from);
+        };
     }
 
     @Override
@@ -87,8 +78,8 @@ public class PromotionServiceImpl implements PromotionService {
     @Override
     public Promotion createPromotion(Promotion promotion) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        promotion.setCreated_at(formatter.format(new java.util.Date()));
-        promotion.setUpdated_at(formatter.format(new java.util.Date()));
+        promotion.setCreatedAt(formatter.format(new java.util.Date()));
+        promotion.setUpdatedAt(formatter.format(new java.util.Date()));
         return promotionRepository.save(promotion);
     }
 
@@ -100,7 +91,12 @@ public class PromotionServiceImpl implements PromotionService {
         newPromotion.setDescription(promotion.getDescription());
         newPromotion.setDiscount_rate(promotion.getDiscount_rate());
         newPromotion.setStatus(promotion.isStatus());
-        newPromotion.setUpdated_at(formatter.format(new java.util.Date()));
+        newPromotion.setUpdatedAt(formatter.format(new java.util.Date()));
         return promotionRepository.save(newPromotion);
+    }
+
+    @Override
+    public List<Promotion> getPromotionsByIds(List<Long> ids) {
+        return promotionRepository.findAllByIds(ids);
     }
 }

@@ -20,4 +20,6 @@ public interface ProductService {
 
     List<Product> getRelatedProducts(long productId);
     List<Product> searchProductsByName(String name);
+
+    List<Product> getProductsByIds(String ids);
 }

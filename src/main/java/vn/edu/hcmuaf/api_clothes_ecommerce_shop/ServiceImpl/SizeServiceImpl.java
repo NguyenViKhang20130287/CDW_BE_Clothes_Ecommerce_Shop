@@ -48,4 +48,9 @@ public class SizeServiceImpl implements SizeService {
 
         return sizeRepository.findAll(specification, PageRequest.of(start, end, Sort.by(direction, sortBy)));
     }
+
+    @Override
+    public Size getSizeById(Long id) {
+        return sizeRepository.findById(id).orElse(null);
+    }
 }
