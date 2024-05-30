@@ -289,9 +289,9 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<?> addNewAddress(String username, AddressDTO addressDTO) {
         try {
             User user = findByUsername(username);
-            if (addressDTO.isDefault()){
+            if (addressDTO.isDefault()) {
                 List<Address> addresses = user.getAddresses();
-                for (Address ar : addresses){
+                for (Address ar : addresses) {
                     ar.setDefault(false);
                 }
             }
@@ -310,6 +310,19 @@ public class UserServiceImpl implements UserService {
             return new ResponseEntity<>(address, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Lỗi thao tác !", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> changePassword(UserDTO userDTO) {
+        User user = findByUsername(userDTO.getUsername());
+        if (passwordEncoder.matches(userDTO.getPassword(), user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(userDTO.getNewPassword()));
+            user.getUserInformation().setUpdatedAt(LocalDateTime.now());
+            userRepository.save(user);
+            return new ResponseEntity<>("Thay đổi mật khẩu thành công", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Mật khẩu không chính xác !", HttpStatus.BAD_REQUEST);
         }
     }
 }
