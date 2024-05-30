@@ -192,27 +192,26 @@ public class ProductServiceImpl implements ProductService {
         product.setCategory(product.getCategory());
         product.setPrice(product.getPrice());
         product.setCreatedAt(formatter.format(new Date()));
-//        product.setCreatedBy(userRepository.findById(1L).orElse(null));
-//        product.setUpdatedBy(userRepository.findById(1L).orElse(null));
         product.setCreatedBy(userRepository.findById(product.getId()).orElse(null));
         product.setUpdatedBy(userRepository.findById(product.getId()).orElse(null));
         product.setUpdatedAt(formatter.format(new Date()));
 
-        if (product.getThumbnail() == null) {
-            product.setThumbnail("");
-        }
+       product.setThumbnail(product.getThumbnail());
+
         if (product.getImageProducts() == null) {
             product.setImageProducts(new ArrayList<>());
         }
+        product = productRepository.save(product);
         List<ImageProduct> imageProducts = new ArrayList<>();
         for (ImageProduct imageProduct : product.getImageProducts()) {
-            imageProduct.setProduct(product);
             imageProduct.setLink(imageProduct.getLink());
+            imageProduct.setProduct(product);
             imageProductRepository.save(imageProduct);
-            imageProducts.add(imageProductRepository.save(imageProduct));
+            imageProducts.add(imageProduct);
         }
         product.setImageProducts(imageProducts);
         Product newProduct = productRepository.save(product);
+
         for (ColorSize colorSize : product.getColorSizes()) {
             colorSize.setProduct(newProduct);
             colorSize.setColor(colorRepository.findById(colorSize.getColor().getId()).orElse(null));
@@ -236,6 +235,34 @@ public class ProductServiceImpl implements ProductService {
         existingProduct.setUpdatedAt(formatter.format(new Date()));
         existingProduct.setUpdatedBy(userRepository.findById(productUpdate.getId()).orElse(null));
         existingProduct.setStatus(productUpdate.isStatus());
+
+        existingProduct.setThumbnail(productUpdate.getThumbnail());
+
+        List<ImageProduct> newImageProducts = new ArrayList<>();
+
+        for (ImageProduct current : productUpdate.getImageProducts()) {
+            ImageProduct existingImageProduct = existingProduct.getImageProducts().stream()
+                    .filter(i -> i.getLink().equals(current.getLink()))
+                    .findFirst()
+                    .orElse(null);
+            if (existingImageProduct == null) {
+                ImageProduct imageProduct = new ImageProduct();
+                imageProduct.setLink(current.getLink());
+                imageProduct.setProduct(existingProduct);
+                imageProductRepository.save(imageProduct);
+                newImageProducts.add(imageProduct);
+            } else {
+                newImageProducts.add(existingImageProduct);
+            }
+        }
+        for (ImageProduct existingImageProduct : existingProduct.getImageProducts()) {
+            if (!newImageProducts.isEmpty() && newImageProducts.stream()
+                    .noneMatch(i ->
+                            i.getLink().equals(existingImageProduct.getLink()))) {
+                imageProductRepository.delete(existingImageProduct);
+            }
+        }
+        existingProduct.setImageProducts(newImageProducts);
 
         existingProduct = productRepository.save(existingProduct); // Save the product first
 
