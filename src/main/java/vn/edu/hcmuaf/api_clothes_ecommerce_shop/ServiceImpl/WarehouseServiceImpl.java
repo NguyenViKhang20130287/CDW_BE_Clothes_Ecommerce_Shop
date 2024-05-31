@@ -86,7 +86,7 @@ public class WarehouseServiceImpl implements WarehouseService {
             importInvoice.setQuantity(importInvoiceRequest.getQuantity());
             importInvoice.setImportPrice(importInvoiceRequest.getImportPrice());
             importInvoice.setCreatedAt(formatter.format(new Date()));
-            importInvoice.setCreatedBy(userRepository.findById(1L).orElse(null));
+            importInvoice.setCreatedBy(null);
             warehouseRepository.save(importInvoice);
             importInvoices.add(importInvoice);
         }
