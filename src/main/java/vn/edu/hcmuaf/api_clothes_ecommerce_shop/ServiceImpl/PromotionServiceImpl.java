@@ -11,21 +11,26 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.PromotionDto;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Product;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Promotion;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.ProductRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.PromotionRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.PromotionService;
 
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class PromotionServiceImpl implements PromotionService {
     private PromotionRepository promotionRepository;
 
+    private ProductRepository productRepository;
     @Autowired
-    public PromotionServiceImpl(PromotionRepository promotionRepository) {
+    public PromotionServiceImpl(PromotionRepository promotionRepository, ProductRepository productRepository) {
         this.promotionRepository = promotionRepository;
+        this.productRepository = productRepository;
     }
 
     @Override
@@ -71,8 +76,12 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     @Override
-    public Promotion getPromotionById(Long id) {
-        return promotionRepository.findById(id).orElse(null);
+    public PromotionDto getPromotionById(Long id) {
+        Promotion promotion = promotionRepository.findById(id).orElse(null);
+        if (promotion == null) {
+            return null;
+        }
+        return PromotionDto.from(promotion);
     }
 
     @Override
@@ -80,19 +89,51 @@ public class PromotionServiceImpl implements PromotionService {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         promotion.setCreatedAt(formatter.format(new java.util.Date()));
         promotion.setUpdatedAt(formatter.format(new java.util.Date()));
+        List<Product> products = new ArrayList<>();
+        for (Product product : promotion.getProducts()) {
+            Product existingProduct = productRepository.findById(product.getId()).orElse(null);
+            promotion.getProducts().add(existingProduct);
+            existingProduct.getPromotions().add(promotion);
+            products.add(existingProduct);
+        }
+        promotion.setProducts(products);
         return promotionRepository.save(promotion);
     }
 
     @Override
-    public Promotion updatePromotion(Promotion promotion) {
+    public Promotion updatePromotion(long id, Promotion promotion) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Promotion newPromotion = promotionRepository.findById(promotion.getId()).orElse(null);
-        newPromotion.setName(promotion.getName());
-        newPromotion.setDescription(promotion.getDescription());
-        newPromotion.setDiscount_rate(promotion.getDiscount_rate());
-        newPromotion.setStatus(promotion.isStatus());
-        newPromotion.setUpdatedAt(formatter.format(new java.util.Date()));
-        return promotionRepository.save(newPromotion);
+        Promotion existingPromotion = promotionRepository.findById(id).orElse(null);
+        if (existingPromotion == null) {
+            return null;
+        }
+        existingPromotion.setName(promotion.getName());
+        existingPromotion.setDescription(promotion.getDescription());
+        existingPromotion.setDiscount_rate(promotion.getDiscount_rate());
+        existingPromotion.setStatus(promotion.isStatus());
+        existingPromotion.setUpdatedAt(formatter.format(new java.util.Date()));
+
+        List<Product> products = new ArrayList<>();
+        if (promotion.getProducts() != null) { // Check if getProducts() is not null
+            for (Product product : promotion.getProducts()) {
+                Product existingProduct = productRepository.findById(product.getId()).orElse(null);
+                if (!existingPromotion.getProducts().contains(existingProduct)) {
+                    existingPromotion.getProducts().add(existingProduct);
+                    existingProduct.getPromotions().add(existingPromotion);
+                }
+                products.add(existingProduct);
+            }
+        }
+        List<Product> productsToRemove = new ArrayList<>();
+        for (Product existingProduct : existingPromotion.getProducts()) {
+            if (!products.contains(existingProduct)) {
+                productsToRemove.add(existingProduct);
+                existingProduct.getPromotions().remove(existingPromotion);
+            }
+        }
+        existingPromotion.getProducts().removeIf(product -> !products.contains(product));
+        existingPromotion.setProducts(products);
+        return promotionRepository.save(existingPromotion);
     }
 
     @Override
