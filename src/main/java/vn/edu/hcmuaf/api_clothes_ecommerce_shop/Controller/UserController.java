@@ -119,4 +119,12 @@ public class UserController {
     ) {
         return userService.changePassword(userDTO);
     }
+
+    @PostMapping("/user-details/edit-address")
+    public ResponseEntity<?> editAddress(
+            @RequestParam String username,
+            @RequestBody AddressDTO addressDTO
+    ) {
+        return userService.editAddress(username, addressDTO);
+    }
 }

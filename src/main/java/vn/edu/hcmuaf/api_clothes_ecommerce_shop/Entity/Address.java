@@ -25,10 +25,16 @@ public class Address {
 
     private String street;
 
+    @Column(name = "ward_id")
+    private long wardId;
     private String ward;
 
+    @Column(name = "district_id")
+    private long districtId;
     private String district;
 
+    @Column(name = "province_id")
+    private long provinceId;
     private String province;
 
     @Column(name = "is_default")
@@ -36,6 +42,9 @@ public class Address {
 
     @Column(name = "created_at")
     private String createdAt;
+
+    @Column(name = "updated_at")
+    private String updatedAt;
 
 //    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JsonIgnore
