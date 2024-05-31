@@ -90,11 +90,14 @@ public class PromotionServiceImpl implements PromotionService {
         promotion.setCreatedAt(formatter.format(new java.util.Date()));
         promotion.setUpdatedAt(formatter.format(new java.util.Date()));
         List<Product> products = new ArrayList<>();
-        for (Product product : promotion.getProducts()) {
-            Product existingProduct = productRepository.findById(product.getId()).orElse(null);
-            promotion.getProducts().add(existingProduct);
-            existingProduct.getPromotions().add(promotion);
-            products.add(existingProduct);
+        if(promotion.getProducts() != null) {
+            for (Product product : promotion.getProducts()) {
+                Product existingProduct = productRepository.findById(product.getId()).orElse(null);
+                if (existingProduct != null) {
+                    existingProduct.getPromotions().add(promotion);
+                    products.add(existingProduct);
+                }
+            }
         }
         promotion.setProducts(products);
         return promotionRepository.save(promotion);
