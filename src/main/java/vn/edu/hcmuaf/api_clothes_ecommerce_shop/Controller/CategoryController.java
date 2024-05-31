@@ -48,4 +48,9 @@ public class CategoryController {
     public ResponseEntity<Category> updateCategory(@PathVariable long id, @RequestBody Category category) {
         return ResponseEntity.ok(categoryService.updateCategory(id, category));
     }
+
+    @GetMapping("/active")
+    public ResponseEntity<?> loadAllCateIsActive(){
+        return ResponseEntity.ok(categoryService.getCategoriesStatusTrue());
+    }
 }

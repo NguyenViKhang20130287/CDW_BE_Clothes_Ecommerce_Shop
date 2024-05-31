@@ -23,5 +23,6 @@ public interface UserService {
     ResponseEntity<?> editUser(UserDTO userDTO);
     ResponseEntity<?> addNewAddress(String username, AddressDTO addressDTO);
     ResponseEntity<?> changePassword(UserDTO userDTO);
+    ResponseEntity<?> editAddress(String username, AddressDTO addressDTO);
 
 }

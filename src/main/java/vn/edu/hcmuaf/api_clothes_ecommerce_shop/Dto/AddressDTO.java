@@ -9,11 +9,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AddressDTO {
+    private long id;
     private String fullName;
     private String phone;
     private String street;
+    private long wardId;
     private String ward;
+    private long districtId;
     private String district;
+    private long provinceId;
     private String province;
     private boolean isDefault;
 

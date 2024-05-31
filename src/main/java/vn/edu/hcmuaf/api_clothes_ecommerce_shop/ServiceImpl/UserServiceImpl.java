@@ -301,8 +301,11 @@ public class UserServiceImpl implements UserService {
             address.setFullName(addressDTO.getFullName());
             address.setPhone(addressDTO.getPhone());
             address.setStreet(addressDTO.getStreet());
+            address.setWardId(addressDTO.getWardId());
             address.setWard(addressDTO.getWard());
+            address.setDistrictId(addressDTO.getDistrictId());
             address.setDistrict(addressDTO.getDistrict());
+            address.setProvinceId(addressDTO.getProvinceId());
             address.setProvince(addressDTO.getProvince());
             address.setDefault(addressDTO.isDefault());
             address.setCreatedAt(String.valueOf(LocalDateTime.now()));
@@ -323,6 +326,37 @@ public class UserServiceImpl implements UserService {
             return new ResponseEntity<>("Thay đổi mật khẩu thành công", HttpStatus.OK);
         } else {
             return new ResponseEntity<>("Mật khẩu không chính xác !", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> editAddress(String username, AddressDTO addressDTO) {
+        try {
+            User user = findByUsername(username);
+            if (addressDTO.isDefault()) {
+                List<Address> addresses = user.getAddresses();
+                for (Address ar : addresses) {
+                    ar.setDefault(false);
+                }
+            }
+            userRepository.save(user);
+            Address address = addressRepository.findById(addressDTO.getId()).orElse(null);
+            if (address == null) return new ResponseEntity<>("Address not found!", HttpStatus.BAD_REQUEST);
+            address.setFullName(addressDTO.getFullName());
+            address.setPhone(addressDTO.getPhone());
+            address.setStreet(addressDTO.getStreet());
+            address.setWardId(addressDTO.getWardId());
+            address.setWard(addressDTO.getWard());
+            address.setDistrictId(addressDTO.getDistrictId());
+            address.setDistrict(addressDTO.getDistrict());
+            address.setProvinceId(addressDTO.getProvinceId());
+            address.setProvince(addressDTO.getProvince());
+            address.setDefault(addressDTO.isDefault());
+            address.setUpdatedAt(String.valueOf(LocalDateTime.now()));
+            addressRepository.save(address);
+            return new ResponseEntity<>(address, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Lỗi thao tác !", HttpStatus.BAD_REQUEST);
         }
     }
 }
