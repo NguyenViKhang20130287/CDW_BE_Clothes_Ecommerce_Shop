@@ -17,11 +17,15 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ProductServiceImpl implements ProductService {
     private ProductRepository productRepository;
+    private CategoryRepository categoryRepository;
     private ColorSizeRepository colorSizeRepository;
     private ColorRepository colorRepository;
     private SizeRepository sizeRepository;
@@ -32,6 +36,7 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     public ProductServiceImpl(
             ProductRepository productRepository,
+            CategoryRepository categoryRepository,
             ColorSizeRepository colorSizeRepository,
             ColorRepository colorRepository,
             SizeRepository sizeRepository,
@@ -39,6 +44,7 @@ public class ProductServiceImpl implements ProductService {
             UserRepository userRepository
     ) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
         this.colorSizeRepository = colorSizeRepository;
         this.colorRepository = colorRepository;
         this.sizeRepository = sizeRepository;
@@ -89,7 +95,7 @@ public class ProductServiceImpl implements ProductService {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("category").get("id"), filterJson.get("categoryId").asLong()));
             }
             if (filterJson.has("createdAt")) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("createdAt"),  filterJson.get("createdAt").asText()));
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("createdAt"), filterJson.get("createdAt").asText()));
             }
             return predicate;
         };
@@ -106,7 +112,9 @@ public class ProductServiceImpl implements ProductService {
         if (sortBy.equals("createdAt")) {
             return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "createdAt")));
         }
-
+        if (sortBy.equals("category.name")) {
+            return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "category.name")));
+        }
         return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, sortBy)));
     }
 
@@ -137,7 +145,7 @@ public class ProductServiceImpl implements ProductService {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("category").get("id"), filterJson.get("categoryId").asLong()));
             }
             if (filterJson.has("createdAt")) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("createdAt"),  filterJson.get("createdAt").asText()));
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("createdAt"), filterJson.get("createdAt").asText()));
             }
             predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("category").get("id"), categoryId));
             return predicate;
@@ -179,28 +187,29 @@ public class ProductServiceImpl implements ProductService {
     public Product createProduct(Product product) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         List<ColorSize> colorSizes = new ArrayList<>();
+        Category category = categoryRepository.findById(product.getCategory().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+        product.setCategory(product.getCategory());
         product.setPrice(product.getPrice());
         product.setCreatedAt(formatter.format(new Date()));
-        product.setCreatedBy(userRepository.findById(1L).orElse(null));
-        product.setUpdatedBy(userRepository.findById(1L).orElse(null));
+        product.setCreatedBy(userRepository.findById(product.getId()).orElse(null));
+        product.setUpdatedBy(userRepository.findById(product.getId()).orElse(null));
         product.setUpdatedAt(formatter.format(new Date()));
 
-        if (product.getThumbnail() == null) {
-            product.setThumbnail("");
-        }
+       product.setThumbnail(product.getThumbnail());
+
         if (product.getImageProducts() == null) {
             product.setImageProducts(new ArrayList<>());
         }
-
+        product = productRepository.save(product);
         List<ImageProduct> imageProducts = new ArrayList<>();
         for (ImageProduct imageProduct : product.getImageProducts()) {
-            imageProduct.setProduct(product);
             imageProduct.setLink(imageProduct.getLink());
+            imageProduct.setProduct(product);
             imageProductRepository.save(imageProduct);
-            imageProducts.add(imageProductRepository.save(imageProduct));
+            imageProducts.add(imageProduct);
         }
         product.setImageProducts(imageProducts);
-
         Product newProduct = productRepository.save(product);
 
         for (ColorSize colorSize : product.getColorSizes()) {
@@ -217,41 +226,75 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product updateProduct(long productId, Product productUpdate) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Product exitingProduct = productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException("Product not found"));
-        exitingProduct.setName(productUpdate.getName());
-        exitingProduct.setPrice(productUpdate.getPrice());
-        exitingProduct.setThumbnail(productUpdate.getThumbnail());
-        exitingProduct.setContent(productUpdate.getContent());
-        exitingProduct.setCategory(productUpdate.getCategory());
-        exitingProduct.setUpdatedAt(formatter.format(new Date()));
-        exitingProduct.setUpdatedBy(userRepository.findById(1L).orElse(null));
-        exitingProduct.setStatus(productUpdate.isStatus());
+        Product existingProduct = productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException("Product not found"));
+        existingProduct.setName(productUpdate.getName());
+        existingProduct.setPrice(productUpdate.getPrice());
+        existingProduct.setThumbnail(productUpdate.getThumbnail());
+        existingProduct.setContent(productUpdate.getContent());
+        existingProduct.setCategory(productUpdate.getCategory());
+        existingProduct.setUpdatedAt(formatter.format(new Date()));
+        existingProduct.setUpdatedBy(userRepository.findById(productUpdate.getId()).orElse(null));
+        existingProduct.setStatus(productUpdate.isStatus());
 
-        List<ColorSize> updatedColorSizes = new ArrayList<>();
-        for (ColorSize updatedColorSize : productUpdate.getColorSizes()) {
-            ColorSize exitingColorSize = exitingProduct.getColorSizes().stream().filter(v -> v.getId() == updatedColorSize.getId()).findFirst().orElse(null);
-            if (exitingColorSize != null) {
-                exitingColorSize.setColor(colorRepository.findById(updatedColorSize.getColor().getId()).orElse(null));
-                exitingColorSize.setSize(sizeRepository.findById(updatedColorSize.getSize().getId()).orElse(null));
-                exitingColorSize.setQuantity(updatedColorSize.getQuantity());
-                colorSizeRepository.save(exitingColorSize);
-                updatedColorSizes.add(colorSizeRepository.save(exitingColorSize));
+        existingProduct.setThumbnail(productUpdate.getThumbnail());
+
+        List<ImageProduct> newImageProducts = new ArrayList<>();
+
+        for (ImageProduct current : productUpdate.getImageProducts()) {
+            ImageProduct existingImageProduct = existingProduct.getImageProducts().stream()
+                    .filter(i -> i.getLink().equals(current.getLink()))
+                    .findFirst()
+                    .orElse(null);
+            if (existingImageProduct == null) {
+                ImageProduct imageProduct = new ImageProduct();
+                imageProduct.setLink(current.getLink());
+                imageProduct.setProduct(existingProduct);
+                imageProductRepository.save(imageProduct);
+                newImageProducts.add(imageProduct);
             } else {
-                ArrayList<ColorSize> colorSizes = new ArrayList<>();
-                for (ColorSize colorSize : productUpdate.getColorSizes()) {
-                    colorSize.setProduct(productUpdate);
-                    colorSize.setColor(colorRepository.findById(colorSize.getColor().getId()).orElse(null));
-                    colorSize.setSize(sizeRepository.findById(colorSize.getSize().getId()).orElse(null));
-                    colorSize.setQuantity(0);
-                    colorSizeRepository.save(colorSize);
-                    colorSizes.add(colorSize);
-                }
+                newImageProducts.add(existingImageProduct);
             }
+        }
+        for (ImageProduct existingImageProduct : existingProduct.getImageProducts()) {
+            if (!newImageProducts.isEmpty() && newImageProducts.stream()
+                    .noneMatch(i ->
+                            i.getLink().equals(existingImageProduct.getLink()))) {
+                imageProductRepository.delete(existingImageProduct);
+            }
+        }
+        existingProduct.setImageProducts(newImageProducts);
 
+        existingProduct = productRepository.save(existingProduct); // Save the product first
+
+        List<Long> updatedColorSizeIds = productUpdate.getColorSizes().stream()
+                .map(cs -> Long.valueOf(cs.getId()))
+                .collect(Collectors.toList());
+
+        Iterator<ColorSize> iterator = existingProduct.getColorSizes().iterator();
+        while (iterator.hasNext()) {
+            ColorSize existingColorSize = iterator.next();
+            if (!updatedColorSizeIds.contains(existingColorSize.getId())) {
+                iterator.remove();
+                colorSizeRepository.delete(existingColorSize);
+            }
         }
 
+        for (ColorSize newColorSize : productUpdate.getColorSizes()) {
+            if (newColorSize.getId() == 0) {
+                newColorSize.setProduct(existingProduct);
+                colorSizeRepository.save(newColorSize);
+            } else {
+                ColorSize existingColorSize = colorSizeRepository.findById(newColorSize.getId()).orElse(null);
+                if (existingColorSize != null) {
+                    existingColorSize.setColor(newColorSize.getColor());
+                    existingColorSize.setSize(newColorSize.getSize());
+                    existingColorSize.setQuantity(newColorSize.getQuantity());
+                    colorSizeRepository.save(existingColorSize);
+                }
+            }
+        }
 
-        return productRepository.save(exitingProduct);
+        return existingProduct;
     }
 
     @Override
@@ -262,9 +305,29 @@ public class ProductServiceImpl implements ProductService {
         Pageable pageable = PageRequest.of(0, 4); // Get the first 4 products
         return productRepository.findRelatedProducts(categoryId, productId, pageable);
     }
+
     @Override
     public List<Product> searchProductsByName(String name) {
         return productRepository.findByNameContaining(name);
+    }
+
+    @Override
+    public List<Product> getProductsByIds(String ids) {
+        JsonNode filterJson;
+        try {
+            filterJson = new ObjectMapper().readTree(java.net.URLDecoder.decode(ids, StandardCharsets.UTF_8));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        if (filterJson.has("ids")) {
+            List<Long> idsList = new ArrayList<>();
+            for (JsonNode idNode : filterJson.get("ids")) {
+                idsList.add(idNode.asLong());
+            }
+            Iterable<Long> itr = List.of(Stream.of(idsList).flatMap(List::stream).toArray(Long[]::new));
+            return productRepository.findAllById(itr);
+        }
+        return null;
     }
 
 }

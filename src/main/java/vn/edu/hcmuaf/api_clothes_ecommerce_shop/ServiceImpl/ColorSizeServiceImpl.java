@@ -10,20 +10,22 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Size;
-import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.SizeRepository;
-import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.SizeService;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Color;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.ColorSize;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.ColorSizeRepository;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.ColorSizeService;
 
 import java.nio.charset.StandardCharsets;
 
 @Service
-public class SizeServiceImpl implements SizeService {
+public class ColorSizeServiceImpl implements ColorSizeService {
+    ColorSizeRepository colorSizeRepository;
     @Autowired
-    private SizeRepository sizeRepository;
-
-
+    public ColorSizeServiceImpl(ColorSizeRepository colorSizeRepository) {
+        this.colorSizeRepository = colorSizeRepository;
+    }
     @Override
-    public Page<Size> getAllSize(String filter, int start, int end, String sortBy, String order) {
+    public Page<ColorSize> getAllColorSize(String filter, int start, int end, String sortBy, String order) {
         Sort.Direction direction = Sort.Direction.ASC;
         if (order.equalsIgnoreCase("DESC"))
             direction = Sort.Direction.DESC;
@@ -34,23 +36,18 @@ public class SizeServiceImpl implements SizeService {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        Specification<Size> specification = (root, query, criteriaBuilder) -> {
+        Specification<ColorSize> specification = (root, query, criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();
             if (filterJson.has("name")) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("name"), "%" + filterJson.get("name").asText() + "%"));
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("quantity"), "%" + filterJson.get("quantity").asInt() + "%"));
             }
             return predicate;
         };
 
-        if (sortBy.equals("name")) {
-            return sizeRepository.findAll(specification, PageRequest.of(start, end, Sort.by(direction, "name")));
+        if (sortBy.equals("quantity")) {
+            return colorSizeRepository.findAll(specification, PageRequest.of(start, end, Sort.by(direction, "quantity")));
         }
 
-        return sizeRepository.findAll(specification, PageRequest.of(start, end, Sort.by(direction, sortBy)));
-    }
-
-    @Override
-    public Size getSizeById(Long id) {
-        return sizeRepository.findById(id).orElse(null);
+        return colorSizeRepository.findAll(specification, PageRequest.of(start, end, Sort.by(direction, sortBy)));
     }
 }
