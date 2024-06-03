@@ -19,4 +19,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>{
     List<Product> findByNameContaining(String name);
     @Query("SELECT p FROM Product p WHERE p.id IN :ids")
     List<Product> findAllByIds(List<Long> ids);
+
+    List<Product> findAllByCategoryIdOrderByCreatedAtAsc(long id);
+
+    List<Product> findTop7ByOrderByCreatedAtDesc();
 }
