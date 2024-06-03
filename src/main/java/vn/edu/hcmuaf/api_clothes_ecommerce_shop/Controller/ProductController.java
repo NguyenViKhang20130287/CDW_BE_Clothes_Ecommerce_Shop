@@ -83,4 +83,9 @@ public class ProductController {
     public ResponseEntity<?> getAllProducts(@RequestParam(defaultValue = "{}") String ids) {
         return ResponseEntity.ok(productService.getProductsByIds(ids));
     }
+
+    @GetMapping("/top-7-newest")
+    public ResponseEntity<?> findFirst3ProductByCateId(){
+        return productService.find7ProductNewestByCateId();
+    }
 }
