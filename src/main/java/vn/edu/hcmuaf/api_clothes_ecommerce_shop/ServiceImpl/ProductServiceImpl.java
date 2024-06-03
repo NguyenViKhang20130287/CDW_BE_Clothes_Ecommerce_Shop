@@ -198,7 +198,7 @@ public class ProductServiceImpl implements ProductService {
         product.setUpdatedBy(userRepository.findById(product.getId()).orElse(null));
         product.setUpdatedAt(formatter.format(new Date()));
 
-       product.setThumbnail(product.getThumbnail());
+        product.setThumbnail(product.getThumbnail());
 
         if (product.getImageProducts() == null) {
             product.setImageProducts(new ArrayList<>());
@@ -216,8 +216,16 @@ public class ProductServiceImpl implements ProductService {
 
         for (ColorSize colorSize : product.getColorSizes()) {
             colorSize.setProduct(newProduct);
-            colorSize.setColor(colorRepository.findById(colorSize.getColor().getId()).orElse(null));
-            colorSize.setSize(sizeRepository.findById(colorSize.getSize().getId()).orElse(null));
+            if (colorSize.getColor() != null) {
+                colorSize.setColor(colorRepository.findById(colorSize.getColor().getId()).orElse(null));
+            } else {
+               break;
+            }
+            if (colorSize.getSize() != null) {
+                colorSize.setSize(sizeRepository.findById(colorSize.getSize().getId()).orElse(null));
+            } else {
+                break;
+            }
             colorSize.setQuantity(0);
             colorSizeRepository.save(colorSize);
             colorSizes.add(colorSize);
