@@ -11,8 +11,10 @@ import java.util.List;
 public class DeliveryStatus {
     @Id
     @GeneratedValue
-    @Column(name = "id")
     private long id;
-    @Column(name = "name")
     private String name;
+    private String description;
+
+    @OneToMany(mappedBy = "deliveryStatus")
+    private List<DeliveryStatusHistory> deliveryStatusHistories;
 }
