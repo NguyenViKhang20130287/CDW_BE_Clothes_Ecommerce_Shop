@@ -24,5 +24,6 @@ public interface UserService {
     ResponseEntity<?> addNewAddress(String username, AddressDTO addressDTO);
     ResponseEntity<?> changePassword(UserDTO userDTO);
     ResponseEntity<?> editAddress(String username, AddressDTO addressDTO);
+    ResponseEntity<?> loadAddressUser(String token);
 
 }
