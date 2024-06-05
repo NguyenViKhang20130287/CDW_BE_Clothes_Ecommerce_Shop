@@ -25,9 +25,11 @@ public class Review {
 
     @Column(name="content")
     private String content;
-    @Column(name="score")
+
+    @Column(name="stars")
     private int score;
+
     @Column(name="created_at")
-    private String created_at;
+    private String createdAt;
 
 }
