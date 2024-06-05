@@ -10,7 +10,7 @@ import lombok.Data;
 @Table(name = "order_details")
 public class OrderDetails {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private long id;
 
@@ -40,4 +40,6 @@ public class OrderDetails {
 
     @Column(name = "quantity")
     private int quantity;
+
+    private double price;
 }

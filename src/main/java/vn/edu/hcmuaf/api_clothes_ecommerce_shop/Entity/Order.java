@@ -33,20 +33,15 @@ public class Order {
     private String payment_method;
 
     @Column(name = "payment_status")
-    private int payment_status;
+    private boolean payment_status;
 
     @Column(name = "total_amount")
     private double total_amount;
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "discount_code_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "discount_code_id", referencedColumnName = "id")
     private DiscountCode discountCode;
-
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "delivery_status_id", referencedColumnName = "id", nullable = false)
-    private DeliveryStatus deliveryStatus;
 
     @Column(name = "shipping_cost")
     private double shipping_cost;
@@ -57,4 +52,10 @@ public class Order {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderDetails> orderDetails;
+
+
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @OneToMany(mappedBy = "order")
+    private List<DeliveryStatusHistory> deliveryStatusHistories;
+
 }

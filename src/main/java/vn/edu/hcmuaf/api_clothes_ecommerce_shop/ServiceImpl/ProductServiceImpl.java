@@ -8,6 +8,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.*;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.*;
@@ -336,6 +338,13 @@ public class ProductServiceImpl implements ProductService {
             return productRepository.findAllById(itr);
         }
         return null;
+    }
+
+    @Override
+    public ResponseEntity<?> find7ProductNewestByCateId() {
+        List<Product> result = productRepository.findTop7ByOrderByCreatedAtDesc();
+        if (result.isEmpty()) return new ResponseEntity<>("List is empty !", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
 }
