@@ -14,22 +14,27 @@ public class DiscountCode {
     @GeneratedValue
     @Column(name = "id")
     private long id;
-    @Column(name = "name")
-    private String name;
-    @Column(name = "description")
-    private String description;
+
+    @Column(name = "code")
+    private String code;
+
     @Column(name = "discount_rate")
-    private int discount_rate;
+    private int discountRate;
+
     @Column(name = "discount_money")
-    private int discount_money;
+    private double discountMoney;
+
     @Column(name = "start_date")
-    private String start_date;
+    private String startDate;
+
     @Column(name = "end_date")
-    private String end_date;
+    private String endDate;
+
     @Column(name = "status")
     private int status;
+
     @Column(name = "created_at")
-    private String created_at;
+    private String createdAt;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,7 +42,7 @@ public class DiscountCode {
     private User createdBy;
 
     @Column(name = "updated_at")
-    private String updated_at;
+    private String updatedAt;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
