@@ -27,6 +27,7 @@ public class OrderServiceImpl implements OrderService {
     private SizeRepository sizeRepository;
     private ColorSizeRepository colorSizeRepository;
     private DeliveryStatusRepository deliveryStatusRepository;
+    private UserRepository userRepository;
 
     @Autowired
     public OrderServiceImpl(OrderRepository orderRepository,
@@ -37,7 +38,8 @@ public class OrderServiceImpl implements OrderService {
                             ColorRepository colorRepository,
                             SizeRepository sizeRepository,
                             ColorSizeRepository colorSizeRepository,
-                            DeliveryStatusRepository deliveryStatusRepository) {
+                            DeliveryStatusRepository deliveryStatusRepository,
+                            UserRepository userRepository) {
         this.orderRepository = orderRepository;
         this.orderDetailRepository = orderDetailRepository;
         this.discountCodeRepository = discountCodeRepository;
@@ -47,6 +49,7 @@ public class OrderServiceImpl implements OrderService {
         this.colorRepository = colorRepository;
         this.sizeRepository = sizeRepository;
         this.colorSizeRepository = colorSizeRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -93,8 +96,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ResponseEntity<?> orderWithPaymentMethodCOD(OrderDto orderDto) {
-
         Order order = new Order();
+        System.out.println("user id: " + orderDto.getUserId());
+        if (orderDto.getUserId() != 0) {
+            User user = userRepository.findById(orderDto.getUserId()).orElse(null);
+            order.setUser(user);
+        }
         order.setFullName(orderDto.getFullName());
         order.setAddress(orderDto.getAddress());
         order.setPhone(orderDto.getPhone());

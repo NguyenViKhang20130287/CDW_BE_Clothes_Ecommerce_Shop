@@ -14,11 +14,12 @@ public class OrderDetails {
     @Column(name = "id")
     private long id;
 
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
 
+//    @JsonIgnore
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
@@ -29,11 +30,13 @@ public class OrderDetails {
     private String product_name;
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+//    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "size_id")
     private Size size;
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+//    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "color_id")
     private Color color;
