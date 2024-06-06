@@ -132,4 +132,9 @@ public class UserController {
 //    public ResponseEntity<?> loadOrder(@RequestParam int orderId){
 //        return null;
 //    }
+
+    @GetMapping("/user-details/addresses")
+    public ResponseEntity<?> loadAddressUser(@RequestParam String token){
+        return userService.loadAddressUser(token);
+    }
 }
