@@ -373,4 +373,18 @@ public class UserServiceImpl implements UserService {
             return new ResponseEntity<>("Token expired !", HttpStatus.OK);
         }
     }
+
+    @Override
+    public ResponseEntity<?> loadOrdersUser(String token) {
+        if (token == null) return new ResponseEntity<>("Token expired !", HttpStatus.BAD_REQUEST);
+        try {
+            Claims claims = jwtService.decode(token);
+            String username = claims.getSubject();
+            User user = findByUsername(username);
+            if (user == null) return new ResponseEntity<>("User not found !", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(user.getOrders(), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Token expired !", HttpStatus.OK);
+        }
+    }
 }

@@ -137,4 +137,9 @@ public class UserController {
     public ResponseEntity<?> loadAddressUser(@RequestParam String token){
         return userService.loadAddressUser(token);
     }
+
+    @GetMapping("/user-details/orders")
+    public ResponseEntity<?> loadOrders(@RequestParam String token){
+        return userService.loadOrdersUser(token);
+    }
 }

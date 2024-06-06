@@ -1,5 +1,6 @@
 package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -15,6 +16,7 @@ public class DeliveryStatus {
     private String name;
     private String description;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "deliveryStatus")
     private List<DeliveryStatusHistory> deliveryStatusHistories;
 }
