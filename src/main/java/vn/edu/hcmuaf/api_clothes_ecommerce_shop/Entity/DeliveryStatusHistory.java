@@ -1,10 +1,13 @@
 package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -21,10 +24,11 @@ public class DeliveryStatusHistory {
     @JoinColumn(name = "order_id")
     private Order order;
 
-    @ManyToOne
-    @JoinColumn(name = "delivery_status_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @OneToOne
+    @JoinColumn(name = "delivery_status_id", referencedColumnName = "id", nullable = false)
     private DeliveryStatus deliveryStatus;
 
     @Column(name = "created_at")
-    private String createdAt;
+    private LocalDateTime createdAt;
 }

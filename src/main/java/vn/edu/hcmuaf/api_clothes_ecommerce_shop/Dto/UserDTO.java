@@ -25,6 +25,5 @@ public class UserDTO {
     private String address;
     private int permission;
     private String phone;
-    private MultipartFile avatar;
     private String avatarLink;
 }

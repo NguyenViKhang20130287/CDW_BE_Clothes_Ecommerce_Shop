@@ -148,30 +148,17 @@ public class UserServiceImpl implements UserService {
             User user = findByEmailOrUsername(userDTO.getUsername(), userDTO.getEmail());
             if (user != null) return new ResponseEntity<>("User already exist", HttpStatus.BAD_REQUEST);
 
-            System.out.println("User data: " + userDTO.getAvatar());
-
             String generatePassword = String.format("%04d", (int) (Math.random() * 1000000));
             System.out.println("Password generate: " + generatePassword);
 
             System.out.println("Permission: " + userDTO.getPermission());
             Permission permission = permissionRepository.findById(userDTO.getPermission()).orElse(null);
 
-            System.out.println("loading...");
-//            byte[] imgBytes = userDTO.getAvatar().getBytes();
-
-            byte[] imgBytes = userDTO.getAvatar().getBytes();
-            String base64String = imageBBService.convertByteArrayToBase64(imgBytes);
-            String imgUrl = imageBBService.uploadImage(base64String);
-
-//            String imgUrl = imageBBService.uploadImage(imgBytes);
-            System.out.println("IMG URL: " + imgUrl);
-
             UserInformation userInfo = new UserInformation();
             userInfo.setFullName(userDTO.getFullName());
             userInfo.setEmail(userDTO.getEmail());
             userInfo.setPhone(userDTO.getPhone());
-            userInfo.setAddress(userDTO.getAddress());
-            userInfo.setAvatar(imgUrl);
+            userInfo.setAvatar(userDTO.getAvatarLink());
             userInfo.setCreatedAt(LocalDateTime.now());
             userInformationRepository.save(userInfo);
             System.out.println("Create user info successful");
@@ -186,9 +173,6 @@ public class UserServiceImpl implements UserService {
             System.out.println("Create user successful");
 
             return new ResponseEntity<>(user, HttpStatus.OK);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -196,6 +180,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<?> edit(long id, UserDTO userDTO) {
+        System.out.println("Status: "  + userDTO.isStatus());
         try {
             User user = userRepository.findById(id).orElse(null);
             if (user == null) return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
@@ -203,17 +188,13 @@ public class UserServiceImpl implements UserService {
             System.out.println("Password generate: " + generatePassword);
             System.out.println("Permission: " + userDTO.getPermission());
             Permission permission = permissionRepository.findById(userDTO.getPermission()).orElse(null);
-            if (userDTO.getAvatar() != null) {
-                byte[] imgBytes = userDTO.getAvatar().getBytes();
-                String base64String = imageBBService.convertByteArrayToBase64(imgBytes);
-                String imgUrl = imageBBService.uploadImage(base64String);
-                user.getUserInformation().setAvatar(imgUrl);
+            if (userDTO.getAvatarLink() != null) {
+                user.getUserInformation().setAvatar(userDTO.getAvatarLink());
             }
 
             user.getUserInformation().setEmail(userDTO.getEmail());
             user.getUserInformation().setFullName(userDTO.getFullName());
             user.getUserInformation().setPhone(userDTO.getPhone());
-            user.getUserInformation().setAddress(userDTO.getAddress());
             user.getUserInformation().setUpdatedAt(LocalDateTime.now());
             user.setPermission(permission);
             user.setStatus(userDTO.isStatus());
