@@ -93,22 +93,21 @@ public class OrderServiceImpl implements OrderService {
     public ResponseEntity<?> updateResponseEntityStatus(PaymentVNPAYDto paymentVNPAYDto) {
         Order order = orderRepository.findById(paymentVNPAYDto.getOrderId()).orElse(null);
         if (order == null) return ResponseEntity.badRequest().body("Order doesn't exist !");
-
-        List<DeliveryStatusHistory> histories = order.getDeliveryStatusHistories();
-        DeliveryStatus deliveryStatus = deliveryStatusRepository.findByName(paymentVNPAYDto.getStatus()).orElse(null);
-        DeliveryStatusHistory statusHistory = new DeliveryStatusHistory();
-        statusHistory.setOrder(order);
-        statusHistory.setDeliveryStatus(deliveryStatus);
-        statusHistory.setCreatedAt(LocalDateTime.now());
-        deliveryStatusHistoryRepository.save(statusHistory);
-        System.out.println("Updated status " + paymentVNPAYDto.getStatus());
-        return ResponseEntity.ok("Updated");
+        DeliveryStatus status = deliveryStatusRepository.findByName(paymentVNPAYDto.getStatus()).orElse(null);
+        DeliveryStatusHistory history = new DeliveryStatusHistory();
+        history.setOrder(order);
+        history.setDeliveryStatus(status);
+        history.setCreatedAt(LocalDateTime.now());
+        deliveryStatusHistoryRepository.save(history);
+        order.setDeliveryStatus(status);
+        orderRepository.save(order);
+        return ResponseEntity.ok("Updated " + paymentVNPAYDto.getStatus());
     }
 
     @Override
     public ResponseEntity<?> orderWithPaymentMethodCOD(OrderDto orderDto) {
         Order order = new Order();
-        System.out.println("user id: " + orderDto.getUserId());
+        DeliveryStatus status = deliveryStatusRepository.findByName("Pending").orElse(null);
         if (orderDto.getUserId() != 0) {
             User user = userRepository.findById(orderDto.getUserId()).orElse(null);
             order.setUser(user);
@@ -118,6 +117,7 @@ public class OrderServiceImpl implements OrderService {
         order.setPhone(orderDto.getPhone());
         order.setPaymentMethod(orderDto.getPaymentMethod());
         order.setPaymentStatus(false);
+        order.setDeliveryStatus(status);
         order.setTotalAmount(orderDto.getTotalAmount());
         if (!orderDto.getDiscountCode().isEmpty()) {
             DiscountCode discountCode = discountCodeRepository.findByCode(orderDto.getDiscountCode()).orElse(null);
@@ -148,10 +148,8 @@ public class OrderServiceImpl implements OrderService {
             colorSize.setQuantity(colorSize.getQuantity() - product.getQuantity());
             colorSizeRepository.save(colorSize);
         }
-
-
         updateDeliveryStatus(order.getId(), "Pending");
-
+        System.out.println("Order created: " + order.getId());
         return ResponseEntity.ok(order);
     }
 
@@ -228,12 +226,16 @@ public class OrderServiceImpl implements OrderService {
 
             if (jsonFilter.has("deliveryStatus")) {
                 String deliveryName = jsonFilter.get("deliveryStatus").asText();
-                System.out.println("Delivery name: " + deliveryName);
+//                System.out.println("Delivery name: " + deliveryName);
 
                 Join<Order, DeliveryStatus> join = root.join("deliveryStatus");
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(join.get("name"), deliveryName));
             }
 
+            if (jsonFilter.has("paymentMethod")) {
+                String paymentMethod = jsonFilter.get("paymentMethod").asText();
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("paymentMethod"), paymentMethod));
+            }
 
             if (jsonFilter.has("q")) {
                 String searchStr = jsonFilter.get("q").asText();
@@ -258,6 +260,36 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(id).orElse(null);
         if (order == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(order.getOrderDetails());
+    }
+
+    @Override
+    public ResponseEntity<?> confirmOrder(long id) {
+        Order order = orderRepository.findById(id).orElse(null);
+        if (order == null) return new ResponseEntity<>("Order not found !", HttpStatus.NOT_FOUND);
+        DeliveryStatus confirmedStatus = deliveryStatusRepository.findByName("Confirmed").orElse(null);
+        DeliveryStatus status = order.getDeliveryStatus();
+        if (status.getName().equalsIgnoreCase("Pending") ||
+                status.getName().equalsIgnoreCase("Paid")) {
+            order.setDeliveryStatus(confirmedStatus);
+            DeliveryStatusHistory history = new DeliveryStatusHistory();
+            history.setOrder(order);
+            history.setDeliveryStatus(confirmedStatus);
+            history.setCreatedAt(LocalDateTime.now());
+            List<DeliveryStatusHistory> histories = order.getDeliveryStatusHistories();
+            histories.add(history);
+            order.setDeliveryStatusHistories(histories);
+            orderRepository.save(order);
+            return ResponseEntity.ok(order);
+        } else return new ResponseEntity<>("Failed action !", HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public ResponseEntity<?> deleteOrder(long id) {
+        Order order = orderRepository.findById(id).orElse(null);
+        if (order == null) return new ResponseEntity<>("Order not found !", HttpStatus.NOT_FOUND);
+        orderRepository.delete(order);
+        System.out.println("Delete order: " + order.getId());
+        return ResponseEntity.ok("Delete success");
     }
 
     public static void main(String[] args) {

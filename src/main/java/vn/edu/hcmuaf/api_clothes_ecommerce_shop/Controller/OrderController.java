@@ -51,4 +51,14 @@ public class OrderController {
     public ResponseEntity<?> getListProductByOrderId(@PathVariable long id){
         return orderService.getListProductByOrderId(id);
     }
+
+    @PutMapping("/confirm/{id}")
+    public ResponseEntity<?> confirmOrder(@PathVariable long id){
+        return orderService.confirmOrder(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteOrder(@PathVariable long id){
+        return orderService.deleteOrder(id);
+    }
 }
