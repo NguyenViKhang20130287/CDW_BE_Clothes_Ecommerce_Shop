@@ -29,9 +29,6 @@ public class UserInformation {
     @Column(name = "phone")
     private String phone;
 
-    @Column(name = "address")
-    private String address;
-
     @Column(name = "avatar")
     private String avatar;
 

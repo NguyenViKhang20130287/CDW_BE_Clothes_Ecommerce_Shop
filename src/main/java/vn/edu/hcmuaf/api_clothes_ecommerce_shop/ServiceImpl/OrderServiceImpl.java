@@ -1,7 +1,17 @@
 package vn.edu.hcmuaf.api_clothes_ecommerce_shop.ServiceImpl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -9,9 +19,11 @@ import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.OrderDto;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.PaymentVNPAYDto;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.ProductOrderDto;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.*;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Order;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.*;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.OrderService;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -70,7 +82,7 @@ public class OrderServiceImpl implements OrderService {
                 DeliveryStatusHistory statusHistory = new DeliveryStatusHistory();
                 statusHistory.setOrder(order);
                 statusHistory.setDeliveryStatus(deliveryStatus);
-                statusHistory.setCreatedAt(String.valueOf(LocalDateTime.now()));
+                statusHistory.setCreatedAt(LocalDateTime.now());
                 deliveryStatusHistoryRepository.save(statusHistory);
                 System.out.println("Updated status pending");
             }
@@ -81,16 +93,15 @@ public class OrderServiceImpl implements OrderService {
     public ResponseEntity<?> updateResponseEntityStatus(PaymentVNPAYDto paymentVNPAYDto) {
         Order order = orderRepository.findById(paymentVNPAYDto.getOrderId()).orElse(null);
         if (order == null) return ResponseEntity.badRequest().body("Order doesn't exist !");
+
         List<DeliveryStatusHistory> histories = order.getDeliveryStatusHistories();
-        if (histories == null) {
-            DeliveryStatus deliveryStatus = deliveryStatusRepository.findByName(paymentVNPAYDto.getStatus()).orElse(null);
-            DeliveryStatusHistory statusHistory = new DeliveryStatusHistory();
-            statusHistory.setOrder(order);
-            statusHistory.setDeliveryStatus(deliveryStatus);
-            statusHistory.setCreatedAt(String.valueOf(LocalDateTime.now()));
-            deliveryStatusHistoryRepository.save(statusHistory);
-            System.out.println("Updated status pending");
-        }
+        DeliveryStatus deliveryStatus = deliveryStatusRepository.findByName(paymentVNPAYDto.getStatus()).orElse(null);
+        DeliveryStatusHistory statusHistory = new DeliveryStatusHistory();
+        statusHistory.setOrder(order);
+        statusHistory.setDeliveryStatus(deliveryStatus);
+        statusHistory.setCreatedAt(LocalDateTime.now());
+        deliveryStatusHistoryRepository.save(statusHistory);
+        System.out.println("Updated status " + paymentVNPAYDto.getStatus());
         return ResponseEntity.ok("Updated");
     }
 
@@ -105,16 +116,16 @@ public class OrderServiceImpl implements OrderService {
         order.setFullName(orderDto.getFullName());
         order.setAddress(orderDto.getAddress());
         order.setPhone(orderDto.getPhone());
-        order.setPayment_method(orderDto.getPaymentMethod());
-        order.setPayment_status(false);
-        order.setTotal_amount(orderDto.getTotalAmount());
+        order.setPaymentMethod(orderDto.getPaymentMethod());
+        order.setPaymentStatus(false);
+        order.setTotalAmount(orderDto.getTotalAmount());
         if (!orderDto.getDiscountCode().isEmpty()) {
             DiscountCode discountCode = discountCodeRepository.findByCode(orderDto.getDiscountCode()).orElse(null);
             order.setDiscountCode(discountCode);
         }
 
-        order.setShipping_cost(orderDto.getShippingCost());
-        order.setCreated_at(String.valueOf(LocalDateTime.now()));
+        order.setShippingCost(orderDto.getShippingCost());
+        order.setCreatedAt(String.valueOf(LocalDateTime.now()));
         orderRepository.save(order);
 
         OrderDetails od;
@@ -132,7 +143,12 @@ public class OrderServiceImpl implements OrderService {
             od.setPrice(product.getPrice());
             od.setOrder(order);
             orderDetailRepository.save(od);
+            ColorSize colorSize = colorSizeRepository.findById(product.getColorSizeId()).orElse(null);
+            if (colorSize == null) return ResponseEntity.badRequest().body("Color size not found");
+            colorSize.setQuantity(colorSize.getQuantity() - product.getQuantity());
+            colorSizeRepository.save(colorSize);
         }
+
 
         updateDeliveryStatus(order.getId(), "Pending");
 
@@ -145,16 +161,16 @@ public class OrderServiceImpl implements OrderService {
         order.setFullName(orderDto.getFullName());
         order.setAddress(orderDto.getAddress());
         order.setPhone(orderDto.getPhone());
-        order.setPayment_method(orderDto.getPaymentMethod());
-        order.setPayment_status(false);
-        order.setTotal_amount(orderDto.getTotalAmount());
+        order.setPaymentMethod(orderDto.getPaymentMethod());
+        order.setPaymentStatus(false);
+        order.setTotalAmount(orderDto.getTotalAmount());
         if (!orderDto.getDiscountCode().isEmpty()) {
             DiscountCode discountCode = discountCodeRepository.findByCode(orderDto.getDiscountCode()).orElse(null);
             order.setDiscountCode(discountCode);
         }
 
-        order.setShipping_cost(orderDto.getShippingCost());
-        order.setCreated_at(String.valueOf(LocalDateTime.now()));
+        order.setShippingCost(orderDto.getShippingCost());
+        order.setCreatedAt(String.valueOf(LocalDateTime.now()));
         orderRepository.save(order);
 
         OrderDetails od;
@@ -177,6 +193,71 @@ public class OrderServiceImpl implements OrderService {
         updateDeliveryStatus(order.getId(), "Pending");
 
         return ResponseEntity.ok("Order VNPAY success");
+    }
+
+    @Override
+    public Page<Order> findAll(int page, int size, String sort, String order, String filter) {
+        Sort.Direction direction = Sort.Direction.ASC;
+        if (order.equalsIgnoreCase("desc")) {
+            direction = Sort.Direction.DESC;
+        }
+        Sort sortBy;
+        if (sort.equalsIgnoreCase("fullName")) {
+            sortBy = Sort.by(direction, "fullName");
+        } else if (sort.equals("totalAmount")) {
+            sortBy = Sort.by(direction, "totalAmount");
+        } else if (sort.equals("createdAt")) {
+            sortBy = Sort.by(direction, "createdAt");
+        } else {
+            sortBy = Sort.by(direction, sort);
+        }
+        Pageable pageable = PageRequest.of(page, size, sortBy);
+        JsonNode jsonFilter;
+        try {
+            jsonFilter = new ObjectMapper().readTree(java.net.URLDecoder.decode(filter, StandardCharsets.UTF_8));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        Specification<Order> specification = (root, query, criteriaBuilder) -> {
+            Predicate predicate = criteriaBuilder.conjunction();
+
+            if (jsonFilter.has("paymentStatus")) {
+                boolean paymentStatus = jsonFilter.get("paymentStatus").asBoolean();
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("paymentStatus"), paymentStatus));
+            }
+
+            if (jsonFilter.has("deliveryStatus")) {
+                String deliveryName = jsonFilter.get("deliveryStatus").asText();
+                System.out.println("Delivery name: " + deliveryName);
+
+                Join<Order, DeliveryStatus> join = root.join("deliveryStatus");
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(join.get("name"), deliveryName));
+            }
+
+
+            if (jsonFilter.has("q")) {
+                String searchStr = jsonFilter.get("q").asText();
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(criteriaBuilder.lower(root.get("phone")), "%" + searchStr.toLowerCase() + "%"));
+            }
+
+            return predicate;
+        };
+
+        return orderRepository.findAll(specification, pageable);
+    }
+
+    @Override
+    public ResponseEntity<?> findById(long id) {
+        Order order = orderRepository.findById(id).orElse(null);
+        if (order == null) return new ResponseEntity<>("Id order not found !", HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(order, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> getListProductByOrderId(long id) {
+        Order order = orderRepository.findById(id).orElse(null);
+        if (order == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(order.getOrderDetails());
     }
 
     public static void main(String[] args) {
