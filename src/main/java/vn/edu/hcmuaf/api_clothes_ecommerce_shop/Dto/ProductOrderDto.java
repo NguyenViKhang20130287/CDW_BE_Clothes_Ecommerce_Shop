@@ -14,4 +14,5 @@ public class ProductOrderDto {
     private String color;
     private int quantity;
     private double price;
+    private long colorSizeId;
 }

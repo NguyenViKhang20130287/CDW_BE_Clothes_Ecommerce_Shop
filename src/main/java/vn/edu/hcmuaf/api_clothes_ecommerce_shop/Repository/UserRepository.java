@@ -13,7 +13,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> findAll(Specification<User> specification, Pageable pageable);
     Optional<User> findByUsername(String username);
     Optional<User> findByUsernameAndPassword(String username, String password);
-    //
     Optional<User> findById(long id);
     Optional<User> findByUserInformationEmail(String email);
     Optional<User> findByUsernameOrUserInformationEmail(String username, String email);

@@ -3,13 +3,12 @@ package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Controller;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.OrderDto;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.PaymentVNPAYDto;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Order;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.OrderService;
 
 @RequiredArgsConstructor
@@ -30,5 +29,26 @@ public class OrderController {
     @PostMapping("/update-status")
     public ResponseEntity<?> updateStatus(@RequestBody PaymentVNPAYDto paymentVNPAYDto){
         return orderService.updateResponseEntityStatus(paymentVNPAYDto);
+    }
+
+    @GetMapping("")
+    public Page<Order> findAllAdmin(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int perPage,
+            @RequestParam(defaultValue = "fullName") String sort,
+            @RequestParam(defaultValue = "asc") String order,
+            @RequestParam(defaultValue = "") String filter
+    ){
+        return orderService.findAll(page, perPage, sort, order, filter);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> findById(@PathVariable long id){
+        return orderService.findById(id);
+    }
+
+    @GetMapping("/details/{id}")
+    public ResponseEntity<?> getListProductByOrderId(@PathVariable long id){
+        return orderService.getListProductByOrderId(id);
     }
 }
