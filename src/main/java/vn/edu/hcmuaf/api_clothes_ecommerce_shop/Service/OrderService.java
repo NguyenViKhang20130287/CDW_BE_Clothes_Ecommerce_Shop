@@ -19,4 +19,6 @@ public interface OrderService {
     Page<Order> findAll(int page, int size, String sort, String order, String filter);
     ResponseEntity<?> findById(long id);
     ResponseEntity<?> getListProductByOrderId(long id);
+    ResponseEntity<?> confirmOrder(long id);
+    ResponseEntity<?> deleteOrder(long id);
 }

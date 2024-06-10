@@ -56,7 +56,7 @@ public class Order {
 
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<DeliveryStatusHistory> deliveryStatusHistories;
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
