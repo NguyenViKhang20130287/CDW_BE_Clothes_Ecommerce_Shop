@@ -68,6 +68,10 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "updatedBy", cascade = CascadeType.ALL)
     private List<Category> updatedCategories;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Log> logs;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + permission.getName()));

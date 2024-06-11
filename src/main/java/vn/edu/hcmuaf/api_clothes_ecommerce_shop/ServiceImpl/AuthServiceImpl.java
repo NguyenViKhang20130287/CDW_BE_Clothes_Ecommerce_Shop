@@ -19,6 +19,7 @@ import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.PermissionRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.UserInformationRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.UserRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.AuthService;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.LogService;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.auth.AuthenticationRequest;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.auth.AuthenticationResponse;
 
@@ -39,6 +40,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final PermissionRepository permissionRepository;
+    private final LogService logService;
     private final Map<String, String> mapOTP = new HashMap<>();
 
     @Override
@@ -88,6 +90,7 @@ public class AuthServiceImpl implements AuthService {
 
         otpConfig.clearOtp(mapOTP, userDTO.getEmail());
         var jwtToken = jwtService.generateToken(user);
+        logService.addLog(user.getId(), "Đăng kí tài khoản thành công");
         return new ResponseEntity<>(
                 AuthenticationResponse.builder()
                         .token(jwtToken)
@@ -108,6 +111,7 @@ public class AuthServiceImpl implements AuthService {
                 );
 //                var user = userRepository.findByUsername(authenticationRequest.getUsername()).orElseThrow();
                 var jwtToken = jwtService.generateToken(userCheck);
+                logService.addLog(userCheck.getId(), "Đăng nhập thành công");
                 return new ResponseEntity<>(AuthenticationResponse
                         .builder()
                         .token(jwtToken)
@@ -129,6 +133,7 @@ public class AuthServiceImpl implements AuthService {
         String otp = otpConfig.generateOtp(mapOTP, email);
         emailConfig.send("RESET PASSWORD", email, otp);
         otpConfig.setTimeOutOtp(mapOTP, email, 3);
+        logService.addLog(user.getId(), "Thực hiện lấy lại mật khẩu");
         return new ResponseEntity<>("Email sent successful", HttpStatus.OK);
     }
 
@@ -145,10 +150,23 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
         otpConfig.clearOtp(mapOTP, userDTO.getEmail());
         var jwtToken = jwtService.generateToken(user);
+        logService.addLog(user.getId(), "Đặt lại mật khẩu mới");
         return new ResponseEntity<>(
                 AuthenticationResponse.builder()
                         .token(jwtToken)
                         .build(),
                 HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> checkAuth(String token) {
+        try {
+            boolean isExpired = jwtService.isTokenExpired(token);
+            System.out.println("Token is expired: " + isExpired);
+            if (isExpired) return new ResponseEntity<>("Token is expired!", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(token, HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<>("Token is expired!", HttpStatus.BAD_REQUEST);
+        }
     }
 }

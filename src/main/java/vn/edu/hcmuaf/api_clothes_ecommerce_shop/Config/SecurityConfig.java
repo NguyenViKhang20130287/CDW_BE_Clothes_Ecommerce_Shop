@@ -77,6 +77,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/review/**").permitAll()
                 .requestMatchers( "/api/v1/test/**").permitAll()
                 .requestMatchers("/api/v1/permission/**").permitAll()
+                .requestMatchers("/api/v1/log/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
