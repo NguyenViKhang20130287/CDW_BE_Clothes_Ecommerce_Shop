@@ -15,6 +15,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Config.JwtService;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.OrderDto;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.PaymentVNPAYDto;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.ProductOrderDto;
@@ -40,6 +41,7 @@ public class OrderServiceImpl implements OrderService {
     private ColorSizeRepository colorSizeRepository;
     private DeliveryStatusRepository deliveryStatusRepository;
     private UserRepository userRepository;
+    private JwtService jwtService;
 
     @Autowired
     public OrderServiceImpl(OrderRepository orderRepository,
@@ -51,7 +53,8 @@ public class OrderServiceImpl implements OrderService {
                             SizeRepository sizeRepository,
                             ColorSizeRepository colorSizeRepository,
                             DeliveryStatusRepository deliveryStatusRepository,
-                            UserRepository userRepository) {
+                            UserRepository userRepository,
+                            JwtService jwtService) {
         this.orderRepository = orderRepository;
         this.orderDetailRepository = orderDetailRepository;
         this.discountCodeRepository = discountCodeRepository;
@@ -62,6 +65,7 @@ public class OrderServiceImpl implements OrderService {
         this.sizeRepository = sizeRepository;
         this.colorSizeRepository = colorSizeRepository;
         this.userRepository = userRepository;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -290,6 +294,19 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.delete(order);
         System.out.println("Delete order: " + order.getId());
         return ResponseEntity.ok("Delete success");
+    }
+
+    @Override
+    public ResponseEntity<?> getListOrderByToken(String token) {
+        try {
+            String username = jwtService.decode(token).getSubject();
+            User user = userRepository.findByUsername(username).orElse(null);
+            assert user != null;
+            List<Order> orders = orderRepository.findAllByUserIdOrderByCreatedAtDesc(user.getId());
+            return new ResponseEntity<>(orders, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Token is expired", HttpStatus.BAD_REQUEST);
+        }
     }
 
     public static void main(String[] args) {
