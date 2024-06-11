@@ -52,4 +52,9 @@ public class AuthController {
     public ResponseEntity<?> reset(@RequestBody UserDTO userDTO){
         return ResponseEntity.ok(authService.reset(userDTO));
     }
+
+    @PostMapping("/check-expired")
+    public ResponseEntity<?> checkAuth(@RequestParam String token){
+        return ResponseEntity.ok(authService.checkAuth(token));
+    }
 }

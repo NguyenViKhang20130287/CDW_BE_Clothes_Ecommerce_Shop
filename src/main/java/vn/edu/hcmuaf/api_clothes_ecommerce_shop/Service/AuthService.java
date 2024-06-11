@@ -17,4 +17,5 @@ public interface AuthService {
     ResponseEntity<?> login(AuthenticationRequest authenticationRequest);
     ResponseEntity<?> forgot(String email);
     ResponseEntity<?> reset(UserDTO userDTO);
+    ResponseEntity<?> checkAuth(String token);
 }
