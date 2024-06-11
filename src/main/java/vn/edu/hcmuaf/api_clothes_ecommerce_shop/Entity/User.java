@@ -48,9 +48,9 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Review> reviews;
 
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Order> orders;
+//    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+//    private List<Order> orders;
 
     @JsonIgnore
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)

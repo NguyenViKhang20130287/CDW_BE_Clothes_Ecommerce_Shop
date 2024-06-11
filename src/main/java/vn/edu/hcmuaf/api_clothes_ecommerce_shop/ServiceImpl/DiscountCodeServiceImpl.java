@@ -23,6 +23,7 @@ public class DiscountCodeServiceImpl implements DiscountCodeService {
     @Override
     public ResponseEntity<?> checkDiscountCode(String code) {
         DiscountCode discount = codeRepository.findByCode(code).orElse(null);
+        if (discount == null) return new ResponseEntity<>("DiscountCode invalid!", HttpStatus.OK);
         return new ResponseEntity<>(discount, HttpStatus.OK);
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Config.JwtService;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.OrderDetails;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Product;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Review;
@@ -29,9 +30,13 @@ public class ReviewServiceImpl implements ReviewService {
     private UserRepository userRepository;
     private ProductRepository productRepository;
     private OrderDetailRepository orderDetailRepository;
+    private JwtService jwtService;
 
     @Autowired
-    public ReviewServiceImpl(ReviewRepository reviewRepository, UserRepository userRepository, ProductRepository productRepository, OrderDetailRepository orderDetailRepository) {
+    public ReviewServiceImpl(ReviewRepository reviewRepository,
+                             UserRepository userRepository,
+                             ProductRepository productRepository,
+                             OrderDetailRepository orderDetailRepository) {
         this.reviewRepository = reviewRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;

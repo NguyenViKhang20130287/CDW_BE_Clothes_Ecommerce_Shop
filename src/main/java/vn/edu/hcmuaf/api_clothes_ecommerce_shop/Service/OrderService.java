@@ -21,4 +21,5 @@ public interface OrderService {
     ResponseEntity<?> getListProductByOrderId(long id);
     ResponseEntity<?> confirmOrder(long id);
     ResponseEntity<?> deleteOrder(long id);
+    ResponseEntity<?> getListOrderByToken(String token);
 }
