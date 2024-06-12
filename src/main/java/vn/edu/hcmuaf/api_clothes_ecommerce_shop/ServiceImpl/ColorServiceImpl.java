@@ -56,4 +56,20 @@ public class ColorServiceImpl implements ColorService {
 
         return colorRepository.findAll(specification, PageRequest.of(start, end, Sort.by(direction, sortBy)));
     }
+
+    @Override
+    public Color addColor(Color color) {
+        return colorRepository.save(color);
+    }
+
+    @Override
+    public Color updateColor(Long id, Color color) {
+        Color colorToUpdate = colorRepository.findById(id).orElse(null);
+        if (colorToUpdate == null) {
+            return null;
+        }
+        colorToUpdate.setName(color.getName());
+        colorToUpdate.setColorCode(color.getColorCode());
+        return colorRepository.save(colorToUpdate);
+    }
 }

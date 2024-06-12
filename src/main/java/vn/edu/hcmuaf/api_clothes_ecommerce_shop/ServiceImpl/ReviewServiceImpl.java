@@ -62,6 +62,9 @@ public class ReviewServiceImpl implements ReviewService {
             }
             return predicate;
         };
+        if(sortBy.equals("createdAt")) {
+            return reviewRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "createdAt")));
+        }
         if (sortBy.equals("stars")) {
             return reviewRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "name")));
         }

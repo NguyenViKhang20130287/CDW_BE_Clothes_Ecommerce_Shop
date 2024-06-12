@@ -32,4 +32,14 @@ public class ColorController {
         Color color = colorService.getColorById(id);
         return ResponseEntity.ok(color);
     }
+    @PostMapping( )
+    public ResponseEntity<Color> addColor(@RequestBody Color color){
+        Color newColor = colorService.addColor(color);
+        return ResponseEntity.ok(newColor);
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<Color> updateColor(@PathVariable Long id, @RequestBody Color color){
+        Color updatedColor = colorService.updateColor(id, color);
+        return ResponseEntity.ok(updatedColor);
+    }
 }

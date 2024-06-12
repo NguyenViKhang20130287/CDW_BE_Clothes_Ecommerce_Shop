@@ -88,6 +88,12 @@ public class UserServiceImpl implements UserService {
             direction = Sort.Direction.DESC;
         }
         Sort sortPa;
+        if(sort.equalsIgnoreCase("id")){
+            sortPa = Sort.by(direction, "id");
+        }
+        if(sort.equalsIgnoreCase("createdAt")){
+            sortPa = Sort.by(direction, "createdAt");
+        }
         if (sort.equalsIgnoreCase("fullName")) {
             sortPa = Sort.by(direction, "userInformation.fullName");
         } else {

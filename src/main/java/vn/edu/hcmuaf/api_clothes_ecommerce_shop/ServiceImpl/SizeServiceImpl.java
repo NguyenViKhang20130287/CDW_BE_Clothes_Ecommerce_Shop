@@ -53,4 +53,19 @@ public class SizeServiceImpl implements SizeService {
     public Size getSizeById(Long id) {
         return sizeRepository.findById(id).orElse(null);
     }
+
+    @Override
+    public Size addSize(Size size) {
+        return sizeRepository.save(size);
+    }
+
+    @Override
+    public Size updateSize(Long id, Size size) {
+        Size sizeToUpdate = sizeRepository.findById(id).orElse(null);
+        if (sizeToUpdate == null) {
+            return null;
+        }
+        sizeToUpdate.setName(size.getName());
+        return sizeRepository.save(sizeToUpdate);
+    }
 }
