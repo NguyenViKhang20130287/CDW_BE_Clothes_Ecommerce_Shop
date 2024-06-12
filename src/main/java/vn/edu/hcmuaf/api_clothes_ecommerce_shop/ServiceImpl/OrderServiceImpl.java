@@ -24,6 +24,9 @@ import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.*;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.OrderService;
 
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -232,6 +235,18 @@ public class OrderServiceImpl implements OrderService {
 
                 Join<Order, DeliveryStatus> join = root.join("deliveryStatus");
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(join.get("name"), deliveryName));
+            }
+
+            if(jsonFilter.has("date_gte")){
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                try {
+                    java.util.Date date = dateFormat.parse(jsonFilter.get("date_gte").asText());
+                    Timestamp dateGte = new Timestamp(date.getTime());
+                    String dateGteString = dateGte.toString();
+                    predicate = criteriaBuilder.and(predicate, criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt"), dateGteString));
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
 

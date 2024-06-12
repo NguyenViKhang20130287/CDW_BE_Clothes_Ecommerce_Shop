@@ -43,6 +43,9 @@ public class User implements UserDetails {
     @Column(name = "status")
     private boolean status;
 
+    @Column(name = "created_at")
+    private String createdAt;
+
 //    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
