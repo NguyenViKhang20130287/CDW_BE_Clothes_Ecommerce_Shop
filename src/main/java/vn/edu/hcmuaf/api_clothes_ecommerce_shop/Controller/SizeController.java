@@ -32,4 +32,15 @@ public class SizeController {
         Size size = sizeService.getSizeById(id);
         return ResponseEntity.ok(size);
     }
+    @PostMapping
+    public ResponseEntity<Size> addSize(@RequestBody Size size){
+        Size newSize = sizeService.addSize(size);
+        return ResponseEntity.ok(newSize);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Size> updateSize(@PathVariable long id, @RequestBody Size size){
+        Size updatedSize = sizeService.updateSize(id, size);
+        return ResponseEntity.ok(updatedSize);
+    }
 }

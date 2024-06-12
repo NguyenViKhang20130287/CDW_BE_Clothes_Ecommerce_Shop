@@ -203,7 +203,7 @@ public class ProductServiceImpl implements ProductService {
         if (product.getImageProducts() == null) {
             product.setImageProducts(new ArrayList<>());
         }
-        product = productRepository.save(product);
+//        product = productRepository.save(product);
         List<ImageProduct> imageProducts = new ArrayList<>();
         for (ImageProduct imageProduct : product.getImageProducts()) {
             imageProduct.setLink(imageProduct.getLink());

@@ -21,7 +21,8 @@ public class Color {
     private long id;
     @Column(name = "name")
     private String name;
-
+    @Column(name = "color_code")
+    private String colorCode;
     @JsonIgnore
     @OneToMany(mappedBy = "color", cascade = CascadeType.ALL)
     private List<ColorSize> colorSizes;
