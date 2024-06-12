@@ -26,5 +26,6 @@ public interface UserService {
     ResponseEntity<?> editAddress(String username, AddressDTO addressDTO);
     ResponseEntity<?> loadAddressUser(String token);
     ResponseEntity<?> loadOrdersUser(String token);
+    ResponseEntity<?> setDefaultAddress(long userId, long addressId);
 
 }

@@ -142,4 +142,9 @@ public class UserController {
     public ResponseEntity<?> loadOrders(@RequestParam String token){
         return userService.loadOrdersUser(token);
     }
+
+    @PostMapping("/user-details/address/set-default")
+    public ResponseEntity<?> setDefaultAddress(@RequestParam long userId, @RequestParam long addressId){
+        return userService.setDefaultAddress(userId, addressId);
+    }
 }
