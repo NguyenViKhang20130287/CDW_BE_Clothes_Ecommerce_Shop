@@ -47,8 +47,9 @@ public class PromotionServiceImpl implements PromotionService {
         }
         Specification<Promotion> specification = (root, query, criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();
-            if (filterJson.has("name")) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("name"), "%" + filterJson.get("name").asText() + "%"));
+            if (filterJson.has("q")) {
+                String searchStr = filterJson.get("q").asText();
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + searchStr.toLowerCase() + "%"));
             }
             if (filterJson.has("discount_rate")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("discount_rate"), filterJson.get("discount_rate").asLong()));

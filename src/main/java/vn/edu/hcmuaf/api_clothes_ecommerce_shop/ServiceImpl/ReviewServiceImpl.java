@@ -20,6 +20,7 @@ import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.ProductRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.ReviewRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.UserRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.ReviewService;
+
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -57,16 +58,20 @@ public class ReviewServiceImpl implements ReviewService {
         }
         Specification<Review> specification = (root, query, criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();
+            if (filterJson.has("q")) {
+                String searchStr = filterJson.get("q").asText();
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(criteriaBuilder.lower(root.get("product.name")), "%" + searchStr.toLowerCase() + "%"));
+            }
             if (filterJson.has("stars")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("stars"), "%" + filterJson.get("stars").asText() + "%"));
             }
             return predicate;
         };
-        if(sortBy.equals("createdAt")) {
+        if (sortBy.equals("createdAt")) {
             return reviewRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "createdAt")));
         }
         if (sortBy.equals("stars")) {
-            return reviewRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "name")));
+            return reviewRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "stars")));
         }
         return reviewRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, sortBy)));
     }
