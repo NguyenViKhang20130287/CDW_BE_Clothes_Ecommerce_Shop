@@ -15,8 +15,8 @@ public class Order {
     @Column(name = "id")
     private long id;
 
-//    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    @JsonIgnore
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+//    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -56,7 +56,7 @@ public class Order {
 
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<DeliveryStatusHistory> deliveryStatusHistories;
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})

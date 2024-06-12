@@ -49,7 +49,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         //
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+        corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:3001"));
         corsConfiguration.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "DELETE"));
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
@@ -77,6 +77,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/review/**").permitAll()
                 .requestMatchers( "/api/v1/test/**").permitAll()
                 .requestMatchers("/api/v1/permission/**").permitAll()
+                .requestMatchers("/api/v1/log/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()

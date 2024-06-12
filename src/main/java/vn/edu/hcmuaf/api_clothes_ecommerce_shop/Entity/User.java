@@ -51,9 +51,9 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Review> reviews;
 
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Order> orders;
+//    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+//    private List<Order> orders;
 
     @JsonIgnore
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
@@ -70,6 +70,10 @@ public class User implements UserDetails {
     @JsonIgnore
     @OneToMany(mappedBy = "updatedBy", cascade = CascadeType.ALL)
     private List<Category> updatedCategories;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Log> logs;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

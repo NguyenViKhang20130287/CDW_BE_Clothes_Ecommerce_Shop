@@ -222,7 +222,7 @@ public class UserServiceImpl implements UserService {
         reviewRepository.deleteAll(review);
         System.out.println("Delete all reviews success");
 
-        List<Order> orders = user.getOrders();
+        List<Order> orders = orderRepository.findAllByUserIdOrderByCreatedAtDesc(user.getId());
         for (Order order : orders) {
             orderDetailRepository.deleteAll(order.getOrderDetails());
         }
@@ -369,7 +369,7 @@ public class UserServiceImpl implements UserService {
             String username = claims.getSubject();
             User user = findByUsername(username);
             if (user == null) return new ResponseEntity<>("User not found !", HttpStatus.BAD_REQUEST);
-            return new ResponseEntity<>(user.getOrders(), HttpStatus.OK);
+            return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Token expired !", HttpStatus.OK);
         }
