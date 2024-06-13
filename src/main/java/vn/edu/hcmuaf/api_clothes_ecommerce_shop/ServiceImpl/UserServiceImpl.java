@@ -29,6 +29,7 @@ import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.UserDTO;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.*;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Image.ImageBBService;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.*;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.LogService;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.UserService;
 
 import java.io.IOException;
@@ -55,7 +56,7 @@ public class UserServiceImpl implements UserService {
     private ImageBBService imageBBService;
     private JwtService jwtService;
     private AddressRepository addressRepository;
-
+    private LogService logService;
 
     @Autowired
     public UserServiceImpl(
@@ -68,7 +69,8 @@ public class UserServiceImpl implements UserService {
             OrderDetailRepository orderDetailRepository,
             ImageBBService imageBBService,
             JwtService jwtService,
-            AddressRepository addressRepository
+            AddressRepository addressRepository,
+            LogService logService
     ) {
         this.userRepository = userRepository;
         this.userInformationRepository = userInformationRepository;
@@ -80,6 +82,7 @@ public class UserServiceImpl implements UserService {
         this.imageBBService = imageBBService;
         this.jwtService = jwtService;
         this.addressRepository = addressRepository;
+        this.logService = logService;
     }
 
     @Override
@@ -176,6 +179,7 @@ public class UserServiceImpl implements UserService {
             user.setUserInformation(userInfo);
             user.setPermission(permission);
             user.setStatus(true);
+            user.setCreatedAt(String.valueOf(LocalDateTime.now()));
             userRepository.save(user);
             System.out.println("Create user successful");
 
@@ -219,17 +223,14 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id).orElse(null);
         if (user == null) return new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
         UserInformation userInfo = user.getUserInformation();
-        List<Review> review = user.getReviews();
-        reviewRepository.deleteAll(review);
-        System.out.println("Delete all reviews success");
-
-        List<Order> orders = orderRepository.findAllByUserIdOrderByCreatedAtDesc(user.getId());
+        reviewRepository.deleteAll(user.getReviews());
+        System.out.println("Reviews deleted");
+        List<Order> orders = orderRepository.findAllByUserIdOrderByCreatedAtDesc(id);
         for (Order order : orders) {
-            orderDetailRepository.deleteAll(order.getOrderDetails());
+            order.setUser(null);
         }
-        orderRepository.deleteAll(orders);
-        System.out.println("Delete all order success");
-
+        List<Address> addresses = user.getAddresses();
+        addressRepository.deleteAll(addresses);
         user.setUserInformation(null);
         userRepository.delete(user);
         System.out.println("Delete user success");

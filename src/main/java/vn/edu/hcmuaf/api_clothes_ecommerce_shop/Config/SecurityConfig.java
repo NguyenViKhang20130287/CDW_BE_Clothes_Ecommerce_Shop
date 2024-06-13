@@ -79,6 +79,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/permission/**").permitAll()
                 .requestMatchers("/api/v1/log/**").permitAll()
                 .requestMatchers("/api/v1/slider/**").permitAll()
+                .requestMatchers("/api/v1/notification/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
