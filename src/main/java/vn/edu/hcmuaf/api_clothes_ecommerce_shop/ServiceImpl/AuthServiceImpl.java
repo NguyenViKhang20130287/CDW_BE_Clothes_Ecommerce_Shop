@@ -85,6 +85,7 @@ public class AuthServiceImpl implements AuthService {
                 .userInformation(userInfo)
                 .permission(permission)
                 .status(true)
+                .createdAt(String.valueOf(LocalDateTime.now()))
                 .build();
         userRepository.save(user);
 
@@ -109,7 +110,9 @@ public class AuthServiceImpl implements AuthService {
                                 authenticationRequest.getPassword()
                         )
                 );
-//                var user = userRepository.findByUsername(authenticationRequest.getUsername()).orElseThrow();
+//                System.out.println("Status: " + userCheck.isStatus());
+                if (!userCheck.isStatus()) return new ResponseEntity<>("Tài khoản đã bị khóa !", HttpStatus.BAD_REQUEST)
+;//                var user = userRepository.findByUsername(authenticationRequest.getUsername()).orElseThrow();
                 var jwtToken = jwtService.generateToken(userCheck);
                 logService.addLog(userCheck.getId(), "Đăng nhập thành công");
                 return new ResponseEntity<>(AuthenticationResponse

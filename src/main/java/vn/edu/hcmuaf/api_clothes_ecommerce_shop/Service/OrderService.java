@@ -22,4 +22,5 @@ public interface OrderService {
     ResponseEntity<?> confirmOrder(long id);
     ResponseEntity<?> deleteOrder(long id);
     ResponseEntity<?> getListOrderByToken(String token);
+    ResponseEntity<?> getListDiscount();
 }
