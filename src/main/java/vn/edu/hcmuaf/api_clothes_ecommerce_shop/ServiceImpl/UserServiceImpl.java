@@ -39,6 +39,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -88,10 +89,10 @@ public class UserServiceImpl implements UserService {
             direction = Sort.Direction.DESC;
         }
         Sort sortPa;
-        if(sort.equalsIgnoreCase("id")){
+        if (sort.equalsIgnoreCase("id")) {
             sortPa = Sort.by(direction, "id");
         }
-        if(sort.equalsIgnoreCase("createdAt")){
+        if (sort.equalsIgnoreCase("createdAt")) {
             sortPa = Sort.by(direction, "createdAt");
         }
         if (sort.equalsIgnoreCase("fullName")) {
@@ -186,7 +187,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<?> edit(long id, UserDTO userDTO) {
-        System.out.println("Status: "  + userDTO.isStatus());
+        System.out.println("Status: " + userDTO.isStatus());
         try {
             User user = userRepository.findById(id).orElse(null);
             if (user == null) return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
@@ -379,10 +380,30 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId).orElse(null);
         assert user != null;
         List<Address> addresses = user.getAddresses();
-        for (Address address : addresses){
+        for (Address address : addresses) {
             address.setDefault(address.getId() == addressId);
             addressRepository.save(address);
         }
         return new ResponseEntity<>(addresses, HttpStatus.OK);
     }
+
+    @Override
+    public List<User> getAllUsers(String ids) {
+        JsonNode filterJson;
+        try {
+            filterJson = new ObjectMapper().readTree(java.net.URLDecoder.decode(ids, StandardCharsets.UTF_8));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        if (filterJson.has("ids")) {
+            List<Long> idsList = new ArrayList<>();
+            for (JsonNode idNode : filterJson.get("ids")) {
+                idsList.add(idNode.asLong());
+            }
+            Iterable<Long> itr = List.of(Stream.of(idsList).flatMap(List::stream).toArray(Long[]::new));
+            return userRepository.findAllById(itr);
+        }
+        return null;
+    }
+
 }

@@ -79,8 +79,6 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public Warehouse saveImportInvoices(ImportInvoiceRequest importInvoiceRequest) {
-        System.out.println("hehe");
-        System.out.println("wut" + importInvoiceRequest);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Warehouse importInvoice = new Warehouse();
         importInvoice.setCreatedAt(formatter.format(new Date()));
