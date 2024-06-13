@@ -90,6 +90,7 @@ public class BlogServiceImpl implements BlogService {
         blog.setThumbnail(newBlog.getThumbnail());
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         blog.setUpdatedAt(formatter.format(new java.util.Date()));
+        blog.setUpdatedBy(newBlog.getUpdatedBy());
         return blogRepository.save(blog);
     }
 }

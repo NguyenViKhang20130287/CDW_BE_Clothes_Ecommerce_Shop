@@ -74,6 +74,7 @@ public class SliderServiceImpl implements SliderService {
         sliderToUpdate.setLink(slider.getLink());
         sliderToUpdate.setStatus(slider.isStatus());
         sliderToUpdate.setUpdatedAt(formatter.format(System.currentTimeMillis()));
+        sliderToUpdate.setUpdatedBy(slider.getUpdatedBy());
         return sliderRepository.save(sliderToUpdate);
     }
 

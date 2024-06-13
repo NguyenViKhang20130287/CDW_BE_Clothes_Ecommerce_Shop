@@ -27,11 +27,11 @@ public class Color {
     @OneToMany(mappedBy = "color", cascade = CascadeType.ALL)
     private List<ColorSize> colorSizes;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "color", cascade = CascadeType.ALL)
-    private List<Warehouse> warehouses;
-
 //    @JsonIgnore
 //    @OneToMany(mappedBy = "color", cascade = CascadeType.ALL)
 //    private List<OrderDetails> orderDetails;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "color", cascade = CascadeType.ALL)
+    private List<ImportWarehouseDetail> importWarehouseDetails;
 }

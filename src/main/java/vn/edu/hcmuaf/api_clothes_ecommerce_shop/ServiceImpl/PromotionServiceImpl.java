@@ -116,6 +116,7 @@ public class PromotionServiceImpl implements PromotionService {
         existingPromotion.setDiscount_rate(promotion.getDiscount_rate());
         existingPromotion.setStatus(promotion.isStatus());
         existingPromotion.setUpdatedAt(formatter.format(new java.util.Date()));
+        existingPromotion.setUpdatedBy(promotion.getUpdatedBy());
 
         List<Product> products = new ArrayList<>();
         if (promotion.getProducts() != null) { // Check if getProducts() is not null

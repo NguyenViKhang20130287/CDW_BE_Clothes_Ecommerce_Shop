@@ -189,10 +189,7 @@ public class ProductServiceImpl implements ProductService {
         product.setCategory(product.getCategory());
         product.setPrice(product.getPrice());
         product.setCreatedAt(formatter.format(new Date()));
-        product.setCreatedBy(userRepository.findById(product.getId()).orElse(null));
-        product.setUpdatedBy(userRepository.findById(product.getId()).orElse(null));
         product.setUpdatedAt(formatter.format(new Date()));
-
         product.setThumbnail(product.getThumbnail());
 
         if (product.getImageProducts() == null) {
@@ -238,7 +235,7 @@ public class ProductServiceImpl implements ProductService {
         existingProduct.setContent(productUpdate.getContent());
         existingProduct.setCategory(productUpdate.getCategory());
         existingProduct.setUpdatedAt(formatter.format(new Date()));
-        existingProduct.setUpdatedBy(userRepository.findById(productUpdate.getId()).orElse(null));
+        existingProduct.setUpdatedBy(productUpdate.getUpdatedBy());
         existingProduct.setStatus(productUpdate.isStatus());
 
         existingProduct.setThumbnail(productUpdate.getThumbnail());

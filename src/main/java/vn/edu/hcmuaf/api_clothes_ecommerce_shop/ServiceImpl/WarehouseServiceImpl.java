@@ -5,16 +5,20 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.Request.ImportInvoiceDetailRequest;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.Request.ImportInvoiceRequest;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.ImportWarehouseDetail;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Product;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Size;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Warehouse;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.*;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.ImportWarehouseDetailRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.WarehouseService;
 
 import java.nio.charset.StandardCharsets;
@@ -30,15 +34,16 @@ public class WarehouseServiceImpl implements WarehouseService {
     private ColorRepository colorRepository;
     private SizeRepository sizeRepository;
     private UserRepository userRepository;
-
+    private ImportWarehouseDetailRepository importWarehouseDetailRepository;
 
     @Autowired
-    public WarehouseServiceImpl(WarehouseRepository warehouseRepository, ProductRepository productRepository, ColorRepository colorRepository, SizeRepository sizeRepository, UserRepository userRepository) {
+    public WarehouseServiceImpl(WarehouseRepository warehouseRepository, ProductRepository productRepository, ColorRepository colorRepository, SizeRepository sizeRepository, UserRepository userRepository, ImportWarehouseDetailRepository importWarehouseDetailRepository) {
         this.warehouseRepository = warehouseRepository;
         this.productRepository = productRepository;
         this.colorRepository = colorRepository;
         this.sizeRepository = sizeRepository;
         this.userRepository = userRepository;
+        this.importWarehouseDetailRepository = importWarehouseDetailRepository;
     }
 
 
@@ -58,10 +63,7 @@ public class WarehouseServiceImpl implements WarehouseService {
             Predicate predicate = criteriaBuilder.conjunction();
             if (filterJson.has("q")) {
                 String searchStr = filterJson.get("q").asText();
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(criteriaBuilder.lower(root.get("id")), "%" + searchStr.toLowerCase() + "%"));
-            }
-            if (filterJson.has("importPrice")) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("importPrice"), "%" + filterJson.get("importPrice").asText() + "%"));
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(criteriaBuilder.lower(root.get("createdAt")), "%" + searchStr.toLowerCase() + "%"));
             }
             if (filterJson.has("createdAt")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("createdAt"), "%" + filterJson.get("createdAt").asText() + "%"));
@@ -71,29 +73,36 @@ public class WarehouseServiceImpl implements WarehouseService {
         if (sortBy.equals("createdAt")) {
             return warehouseRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "createdAt")));
         }
-        if (sortBy.equals("importPrice")) {
-            return warehouseRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "importPrice")));
-        }
 
         return warehouseRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, sortBy)));
     }
 
     @Override
-    public List<Warehouse> saveImportInvoices(List<ImportInvoiceRequest> importInvoiceRequests) {
+    public Warehouse saveImportInvoices(ImportInvoiceRequest importInvoiceRequest) {
+        System.out.println("hehe");
+        System.out.println("wut" + importInvoiceRequest);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        List<Warehouse> importInvoices = new ArrayList<>();
-        for (ImportInvoiceRequest importInvoiceRequest : importInvoiceRequests) {
-            Warehouse importInvoice = new Warehouse();
-            importInvoice.setProduct(productRepository.findById(importInvoiceRequest.getProduct_id()).orElse(null));
-            importInvoice.setColor(colorRepository.findById(importInvoiceRequest.getColor_id()).orElse(null));
-            importInvoice.setSize(sizeRepository.findById(importInvoiceRequest.getSize_id()).orElse(null));
-            importInvoice.setQuantity(importInvoiceRequest.getQuantity());
-            importInvoice.setImportPrice(importInvoiceRequest.getImportPrice());
-            importInvoice.setCreatedAt(formatter.format(new Date()));
-            importInvoice.setCreatedBy(null);
-            warehouseRepository.save(importInvoice);
-            importInvoices.add(importInvoice);
+        Warehouse importInvoice = new Warehouse();
+        importInvoice.setCreatedAt(formatter.format(new Date()));
+        importInvoice.setCreatedBy(importInvoiceRequest.getCreatedBy());
+        double totalPrice = 0;
+        warehouseRepository.save(importInvoice);
+        List<ImportWarehouseDetail> importWarehouseDetails = new ArrayList<>();
+        for (ImportInvoiceDetailRequest importInvoiceDetailRequest : importInvoiceRequest.getImportInvoiceDetailRequests()) {
+            ImportWarehouseDetail importWarehouseDetail = new ImportWarehouseDetail();
+            importWarehouseDetail.setProduct(productRepository.findById(importInvoiceDetailRequest.getProduct_id()).orElse(null));
+            importWarehouseDetail.setColor(colorRepository.findById(importInvoiceDetailRequest.getColor_id()).orElse(null));
+            importWarehouseDetail.setSize(sizeRepository.findById(importInvoiceDetailRequest.getSize_id()).orElse(null));
+            importWarehouseDetail.setQuantity(importInvoiceDetailRequest.getQuantity());
+            importWarehouseDetail.setImportPrice(importInvoiceDetailRequest.getImportPrice());
+            importWarehouseDetail.setWarehouse(importInvoice);
+            importWarehouseDetailRepository.save(importWarehouseDetail);
+            importWarehouseDetails.add(importWarehouseDetail);
+            totalPrice += importWarehouseDetail.getImportPrice() * importWarehouseDetail.getQuantity();
         }
-        return importInvoices;
+        importInvoice.setTotalAmount(totalPrice);
+        importInvoice.setImportWarehouseDetails(importWarehouseDetails);
+        warehouseRepository.save(importInvoice);
+        return importInvoice;
     }
 }

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Entity
 @Table(name = "warehouse")
@@ -14,26 +16,8 @@ public class Warehouse {
     @Column(name = "id")
     private long id;
 
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    private Product product;
-
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "color_id")
-    private Color color;
-
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "size_id")
-    private Size size;
-
-    @Column(name = "import_price")
-    private double importPrice;
-
-    @Column(name = "quantity")
-    private int quantity;
+    @Column(name = "total_amount")
+    private double totalAmount;
 
     @Column(name = "created_at")
     private String createdAt;
@@ -42,4 +26,8 @@ public class Warehouse {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = true)
     private User createdBy;
+
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @OneToMany(mappedBy = "warehouse", fetch = FetchType.LAZY)
+    private List<ImportWarehouseDetail> importWarehouseDetails;
 }

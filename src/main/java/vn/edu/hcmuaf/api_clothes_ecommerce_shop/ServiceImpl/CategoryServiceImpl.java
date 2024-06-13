@@ -91,6 +91,7 @@ public class CategoryServiceImpl implements CategoryService {
         categoryUpdate.setStatus(category.isStatus());
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         categoryUpdate.setUpdatedAt(formatter.format(new Date()));
+        categoryUpdate.setUpdatedBy(category.getUpdatedBy());
         return categoryRepository.save(categoryUpdate);
     }
 

@@ -2,6 +2,7 @@ package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -56,30 +57,14 @@ public class User implements UserDetails {
 //    private List<Order> orders;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
-    private List<Product> products;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "updatedBy", cascade = CascadeType.ALL)
-    private List<Product> updatedProducts;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
-    private List<Category> categories;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "updatedBy", cascade = CascadeType.ALL)
-    private List<Category> updatedCategories;
-
-    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Log> logs;
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + permission.getName()));
     }
-
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

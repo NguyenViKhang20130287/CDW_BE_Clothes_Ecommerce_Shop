@@ -1,8 +1,10 @@
 package vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.Request;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.User;
 
-import java.sql.Date;
+import java.util.List;
 
 @Data
 @NonNull
@@ -10,10 +12,9 @@ import java.sql.Date;
 @NoArgsConstructor
 @Builder
 public class ImportInvoiceRequest {
-    private long product_id;
-    private long color_id;
-    private long size_id;
-    private double importPrice;
-    private int quantity;
+    private Double totalPrice;
+    List<ImportInvoiceDetailRequest> importInvoiceDetailRequests;
     private String createdAt;
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private User createdBy;
 }

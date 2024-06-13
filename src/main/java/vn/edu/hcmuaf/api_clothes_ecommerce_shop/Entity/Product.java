@@ -50,8 +50,8 @@ public class Product {
     @Column(name = "created_at")
     private String createdAt;
 
-    @JsonIgnore
-//    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+//    @JsonIgnore
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
     private User createdBy;
@@ -59,8 +59,8 @@ public class Product {
     @Column(name = "updated_at")
     private String updatedAt;
 
-//    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    @JsonIgnore
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+//    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "updated_by")
     private User updatedBy;
@@ -90,10 +90,6 @@ public class Product {
 
     @JsonIgnore
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<Warehouse> warehouses;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Review> reviews;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -106,4 +102,8 @@ public class Product {
     @JsonIgnore
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<OrderDetails> orderDetails;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<ImportWarehouseDetail> importWarehouseDetails;
 }
