@@ -40,6 +40,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -386,4 +387,24 @@ public class UserServiceImpl implements UserService {
         }
         return new ResponseEntity<>(addresses, HttpStatus.OK);
     }
+
+    @Override
+    public List<User> getAllUsers(String ids) {
+        JsonNode filterJson;
+        try {
+            filterJson = new ObjectMapper().readTree(java.net.URLDecoder.decode(ids, StandardCharsets.UTF_8));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        if (filterJson.has("ids")) {
+            List<Long> idsList = new ArrayList<>();
+            for (JsonNode idNode : filterJson.get("ids")) {
+                idsList.add(idNode.asLong());
+            }
+            Iterable<Long> itr = List.of(Stream.of(idsList).flatMap(List::stream).toArray(Long[]::new));
+            return userRepository.findAllById(itr);
+        }
+        return null;
+    }
+
 }

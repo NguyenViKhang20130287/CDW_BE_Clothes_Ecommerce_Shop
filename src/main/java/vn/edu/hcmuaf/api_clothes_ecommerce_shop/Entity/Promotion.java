@@ -47,8 +47,8 @@ public class Promotion {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
-
     private User createdBy;
+
     @Column(name = "updated_at")
     private String updatedAt;
 

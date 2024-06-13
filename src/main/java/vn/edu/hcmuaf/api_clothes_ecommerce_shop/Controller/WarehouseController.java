@@ -33,8 +33,8 @@ public class WarehouseController {
     }
 
     @PostMapping
-    public ResponseEntity<List<Warehouse>> saveImportInvoices(@RequestBody List<ImportInvoiceRequest> importInvoiceRequests) {
-        List<Warehouse> warehouse = warehouseService.saveImportInvoices(importInvoiceRequests);
+    public ResponseEntity<Warehouse> saveImportInvoices(@RequestBody ImportInvoiceRequest importInvoiceRequest) {
+        Warehouse warehouse = warehouseService.saveImportInvoices(importInvoiceRequest);
         return ResponseEntity.ok(warehouse);
     }
 }

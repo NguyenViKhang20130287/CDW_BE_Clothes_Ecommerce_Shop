@@ -20,8 +20,11 @@ import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.ProductRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.ReviewRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.UserRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.ReviewService;
+
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -57,18 +60,54 @@ public class ReviewServiceImpl implements ReviewService {
         }
         Specification<Review> specification = (root, query, criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();
+            if (filterJson.has("q")) {
+                String searchStr = filterJson.get("q").asText();
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(criteriaBuilder.lower(root.get("content")), "%" + searchStr.toLowerCase() + "%"));
+            }
             if (filterJson.has("stars")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("stars"), "%" + filterJson.get("stars").asText() + "%"));
             }
+            if (filterJson.has("user.id")) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("user").get("id"), filterJson.get("user.id").asLong()));
+            }
+            if (filterJson.has("product.id")) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("product").get("id"), filterJson.get("product.id").asLong()));
+            }
+            if (filterJson.has("createdAt")) {
+                String dateString = filterJson.get("createdAt").asText();
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                Date date;
+                try {
+                    date = format.parse(dateString);
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("createdAt"), date));
+            }
             return predicate;
         };
-        if(sortBy.equals("createdAt")) {
-            return reviewRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "createdAt")));
-        }
-        if (sortBy.equals("stars")) {
-            return reviewRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "name")));
-        }
-        return reviewRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, sortBy)));
+        return switch (sortBy) {
+            case "status" ->
+                    reviewRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "status")));
+            case "reviewedDate" ->
+                    reviewRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "createdAt")));
+            case "type" ->
+                    reviewRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "type")));
+            case "reviewer" ->
+                    reviewRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "user")));
+            case "product" ->
+                    reviewRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "product")));
+            case "rating" ->
+                    reviewRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "stars")));
+            case "content" ->
+                    reviewRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "content")));
+            default -> reviewRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, sortBy)));
+        };
+    }
+
+    @Override
+    public Review getReviewById(long id) {
+        return reviewRepository.findById(id).orElse(null);
     }
 
     @Override

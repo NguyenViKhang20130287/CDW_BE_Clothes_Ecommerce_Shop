@@ -13,6 +13,8 @@ import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.User;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.UserInformation;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.UserService;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/user")
@@ -89,6 +91,12 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable long id) {
         return ResponseEntity.ok(userService.findById(id));
+    }
+
+    @GetMapping("/ids")
+    public ResponseEntity<?> getUsersByIds(@RequestParam(defaultValue = "{}") String ids) {
+        List<User> users = userService.getAllUsers(ids);
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/user-details")

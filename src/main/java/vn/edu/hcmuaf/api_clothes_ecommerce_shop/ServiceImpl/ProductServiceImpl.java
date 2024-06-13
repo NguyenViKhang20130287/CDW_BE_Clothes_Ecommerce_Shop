@@ -84,8 +84,9 @@ public class ProductServiceImpl implements ProductService {
         }
         Specification<Product> specification = (root, query, criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();
-            if (filterJson.has("name")) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("name"), "%" + filterJson.get("name").asText() + "%"));
+            if (filterJson.has("q")) {
+                String searchStr = filterJson.get("q").asText();
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + searchStr.toLowerCase() + "%"));
             }
             if (filterJson.has("price")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("price"), filterJson.get("price").asDouble()));
@@ -134,8 +135,9 @@ public class ProductServiceImpl implements ProductService {
         }
         Specification<Product> specification = (root, query, criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();
-            if (filterJson.has("name")) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("name"), "%" + filterJson.get("name").asText() + "%"));
+            if (filterJson.has("q")) {
+                String searchStr = filterJson.get("q").asText();
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + searchStr.toLowerCase() + "%"));
             }
             if (filterJson.has("price")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("price"), filterJson.get("price").asDouble()));
@@ -143,13 +145,6 @@ public class ProductServiceImpl implements ProductService {
             if (filterJson.has("status")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("status"), filterJson.get("status").asBoolean()));
             }
-            if (filterJson.has("categoryId")) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("category").get("id"), filterJson.get("categoryId").asLong()));
-            }
-            if (filterJson.has("createdAt")) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("createdAt"), filterJson.get("createdAt").asText()));
-            }
-            predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("category").get("id"), categoryId));
             return predicate;
         };
 
@@ -194,10 +189,7 @@ public class ProductServiceImpl implements ProductService {
         product.setCategory(product.getCategory());
         product.setPrice(product.getPrice());
         product.setCreatedAt(formatter.format(new Date()));
-        product.setCreatedBy(userRepository.findById(product.getId()).orElse(null));
-        product.setUpdatedBy(userRepository.findById(product.getId()).orElse(null));
         product.setUpdatedAt(formatter.format(new Date()));
-
         product.setThumbnail(product.getThumbnail());
 
         if (product.getImageProducts() == null) {
@@ -243,7 +235,7 @@ public class ProductServiceImpl implements ProductService {
         existingProduct.setContent(productUpdate.getContent());
         existingProduct.setCategory(productUpdate.getCategory());
         existingProduct.setUpdatedAt(formatter.format(new Date()));
-        existingProduct.setUpdatedBy(userRepository.findById(productUpdate.getId()).orElse(null));
+        existingProduct.setUpdatedBy(productUpdate.getUpdatedBy());
         existingProduct.setStatus(productUpdate.isStatus());
 
         existingProduct.setThumbnail(productUpdate.getThumbnail());

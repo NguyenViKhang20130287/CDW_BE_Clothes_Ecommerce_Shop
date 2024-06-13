@@ -40,8 +40,9 @@ public class BlogServiceImpl implements BlogService {
         }
         Specification<Blog> specification = (root, query, criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();
-            if (filterJson.has("title")) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("title"), "%" + filterJson.get("title").asText() + "%"));
+            if (filterJson.has("q")) {
+                String searchStr = filterJson.get("q").asText();
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), "%" + searchStr.toLowerCase() + "%"));
             }
             if (filterJson.has("status")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("status"), filterJson.get("status").asBoolean()));
@@ -89,6 +90,7 @@ public class BlogServiceImpl implements BlogService {
         blog.setThumbnail(newBlog.getThumbnail());
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         blog.setUpdatedAt(formatter.format(new java.util.Date()));
+        blog.setUpdatedBy(newBlog.getUpdatedBy());
         return blogRepository.save(blog);
     }
 }

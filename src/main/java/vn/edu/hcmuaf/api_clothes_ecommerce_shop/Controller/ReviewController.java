@@ -27,6 +27,13 @@ public class ReviewController {
         Page<Review> reviews = reviewService.getAllReview(filter, page, perPage, sort, order);
         return ResponseEntity.ok(reviews);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Review> getReviewById(@PathVariable long id) {
+        Review review = reviewService.getReviewById(id);
+        return ResponseEntity.ok(review);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Review> updateType(@PathVariable long id,@RequestBody Review review) {
         Review review1 = reviewService.updateType(id, review);
