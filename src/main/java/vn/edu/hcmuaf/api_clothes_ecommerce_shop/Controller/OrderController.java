@@ -68,4 +68,9 @@ public class OrderController {
     public ResponseEntity<?> findByUser(@RequestParam String token) {
         return orderService.getListOrderByToken(token);
     }
+
+    @GetMapping("/discounts")
+    public ResponseEntity<?> getListDiscount(){
+        return orderService.getListDiscount();
+    }
 }

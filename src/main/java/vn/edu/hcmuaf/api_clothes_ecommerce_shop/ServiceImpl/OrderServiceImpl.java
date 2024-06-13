@@ -22,6 +22,7 @@ import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.ProductOrderDto;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.*;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Order;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.*;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.LogService;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.OrderService;
 
 import java.nio.charset.StandardCharsets;
@@ -45,6 +46,7 @@ public class OrderServiceImpl implements OrderService {
     private DeliveryStatusRepository deliveryStatusRepository;
     private UserRepository userRepository;
     private JwtService jwtService;
+    private LogService logService;
 
     @Autowired
     public OrderServiceImpl(OrderRepository orderRepository,
@@ -57,7 +59,9 @@ public class OrderServiceImpl implements OrderService {
                             ColorSizeRepository colorSizeRepository,
                             DeliveryStatusRepository deliveryStatusRepository,
                             UserRepository userRepository,
-                            JwtService jwtService) {
+                            JwtService jwtService,
+                            LogService logService
+    ) {
         this.orderRepository = orderRepository;
         this.orderDetailRepository = orderDetailRepository;
         this.discountCodeRepository = discountCodeRepository;
@@ -69,6 +73,7 @@ public class OrderServiceImpl implements OrderService {
         this.colorSizeRepository = colorSizeRepository;
         this.userRepository = userRepository;
         this.jwtService = jwtService;
+        this.logService = logService;
     }
 
     @Override
@@ -254,8 +259,6 @@ public class OrderServiceImpl implements OrderService {
                     throw new RuntimeException(e);
                 }
             }
-
-
             if (jsonFilter.has("q")) {
                 String searchStr = jsonFilter.get("q").asText();
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(criteriaBuilder.lower(root.get("phone")), "%" + searchStr.toLowerCase() + "%"));
@@ -322,6 +325,11 @@ public class OrderServiceImpl implements OrderService {
         } catch (Exception e) {
             return new ResponseEntity<>("Token is expired", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @Override
+    public ResponseEntity<?> getListDiscount() {
+        return new ResponseEntity<>(discountCodeRepository.findAll(), HttpStatus.OK);
     }
 
     public static void main(String[] args) {
