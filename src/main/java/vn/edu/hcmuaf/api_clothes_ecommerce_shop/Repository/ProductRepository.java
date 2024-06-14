@@ -13,7 +13,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>{
     List<Product> findByStatusTrue();
     Page<Product> findAll(Specification<Product> specification, Pageable pageable);
     Page<Product> findAll(Pageable pageable);
-    Page<Product> findAllByCategoryId(Long categoryId, Pageable pageable);
+    Page<Product> findAllByCategoryId(Long categoryId, Specification<Product> specification, Pageable pageable);
     @Query("SELECT p FROM Product p WHERE p.category.id = ?1 AND p.id <> ?2")
     List<Product> findRelatedProducts(Long categoryId, Long productId, Pageable pageable);
     List<Product> findByNameContaining(String name);

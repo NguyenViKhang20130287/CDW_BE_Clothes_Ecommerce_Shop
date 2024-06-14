@@ -114,6 +114,8 @@ public class PromotionServiceImpl implements PromotionService {
         existingPromotion.setName(promotion.getName());
         existingPromotion.setDescription(promotion.getDescription());
         existingPromotion.setDiscount_rate(promotion.getDiscount_rate());
+        existingPromotion.setStartDate(promotion.getStartDate());
+        existingPromotion.setEndDate(promotion.getEndDate());
         existingPromotion.setStatus(promotion.isStatus());
         existingPromotion.setUpdatedAt(formatter.format(new java.util.Date()));
         existingPromotion.setUpdatedBy(promotion.getUpdatedBy());
