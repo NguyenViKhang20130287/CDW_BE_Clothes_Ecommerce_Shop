@@ -153,6 +153,9 @@ public class ProductServiceImpl implements ProductService {
             if (filterJson.has("categoryId")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("category").get("id"), filterJson.get("categoryId").asLong()));
             }
+            if (filterJson.has("isDeleted")) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("isDeleted"), filterJson.get("isDeleted").asBoolean()));
+            }
             return predicate;
         };
         if (sortBy.equals("price")) {
@@ -172,7 +175,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProduct(Long id) {
-        productRepository.deleteById(id);
+        Product product = productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Product not found"));
+        product.setDeleted(true);
+        productRepository.save(product);
     }
 
     @Override

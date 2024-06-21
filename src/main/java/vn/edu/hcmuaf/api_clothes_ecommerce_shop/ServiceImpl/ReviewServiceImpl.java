@@ -73,6 +73,9 @@ public class ReviewServiceImpl implements ReviewService {
             if (filterJson.has("product.id")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("product").get("id"), filterJson.get("product.id").asLong()));
             }
+            if (filterJson.has("isDeleted")) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("isDeleted"), filterJson.get("isDeleted").asBoolean()));
+            }
             if (filterJson.has("createdAt")) {
                 String dateString = filterJson.get("createdAt").asText();
                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -138,5 +141,13 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public List<Review> getReviewByProductId(long productId) {
         return reviewRepository.findAllByProductIdAndTypeStatus(productId, 1);
+    }
+
+    @Override
+    public void deleteReview(long id) {
+        Review review = reviewRepository.findById(id).orElse(null);
+        assert review != null;
+        review.setDeleted(true);
+        reviewRepository.save(review);
     }
 }

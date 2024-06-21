@@ -40,6 +40,9 @@ public class Category {
     @JoinColumn(name = "updated_by")
     private User updatedBy;
 
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
+
     @JsonIgnore
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<Product> products;

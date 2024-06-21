@@ -8,4 +8,5 @@ public interface BlogService {
     Blog getBlogById(long id);
     Blog createBlog(Blog newBlog);
     Blog updateBlog(long id, Blog newBlog);
+    void deleteBlog(long id);
 }

@@ -59,11 +59,14 @@ public class ProductController {
         return ResponseEntity.ok(products);
     }
 
+    //admin
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
         return ResponseEntity.ok(productService.createProduct(product));
     }
 
+
+    //admin
     @PutMapping("/{id}")
     public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
         return ResponseEntity.ok(productService.updateProduct(id, product));
@@ -87,5 +90,12 @@ public class ProductController {
     @GetMapping("/top-7-newest")
     public ResponseEntity<?> findFirst3ProductByCateId(){
         return productService.find7ProductNewestByCateId();
+    }
+
+    //admin
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
+        productService.deleteProduct(id);
+        return ResponseEntity.ok("Deleted");
     }
 }

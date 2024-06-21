@@ -63,10 +63,15 @@ public class PromotionServiceImpl implements PromotionService {
             if (filterJson.has("end_date")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("end_date").get("id"), filterJson.get("end_date").asText()));
             }
+            if (filterJson.has("isDeleted")) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("isDeleted"), filterJson.get("isDeleted").asBoolean()));
+            }
             return predicate;
         };
 
         return switch (sortBy) {
+            case "id" ->
+                    promotionRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "id"))).map(PromotionDto::from);
             case "name" ->
                     promotionRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "name"))).map(PromotionDto::from);
             case "status" ->
@@ -146,5 +151,12 @@ public class PromotionServiceImpl implements PromotionService {
     @Override
     public List<Promotion> getPromotionsByIds(List<Long> ids) {
         return promotionRepository.findAllByIds(ids);
+    }
+
+    @Override
+    public void deletePromotion(Long id) {
+        Promotion promotion = promotionRepository.findById(id).orElse(null);
+        promotion.setDeleted(true);
+        promotionRepository.save(promotion);
     }
 }

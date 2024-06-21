@@ -9,8 +9,7 @@ public interface CategoryService {
     Page<Category> getAllCategories(String filter, int start, int end, String sortBy, String order);
     List<Category> getCategoriesStatusTrue();
     Category getCategoryById(long id);
-    void deleteCategory(long id);
     Category createCategory(Category category);
     Category updateCategory(long id, Category category);
-
+    void deleteCategory(long id);
 }

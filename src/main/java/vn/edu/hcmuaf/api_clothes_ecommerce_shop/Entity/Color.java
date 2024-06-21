@@ -34,4 +34,8 @@ public class Color {
     @JsonIgnore
     @OneToMany(mappedBy = "color", cascade = CascadeType.ALL)
     private List<ImportWarehouseDetail> importWarehouseDetails;
+
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
+
 }

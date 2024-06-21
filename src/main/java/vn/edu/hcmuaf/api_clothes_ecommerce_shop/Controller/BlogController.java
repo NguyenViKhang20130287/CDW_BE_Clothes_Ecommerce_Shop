@@ -34,16 +34,25 @@ public class BlogController {
         return ResponseEntity.ok(blog);
     }
 
+    //admin
     @PostMapping
     public ResponseEntity<Blog> createBlog(@RequestBody Blog newBlog) {
         Blog blog = blogService.createBlog(newBlog);
         return ResponseEntity.ok(blog);
     }
 
+    //admin
     @PutMapping({"/{id}"})
     public ResponseEntity<Blog> updateBlog(@PathVariable long id, @RequestBody Blog newBlog) {
         Blog blog = blogService.updateBlog(id, newBlog);
         return ResponseEntity.ok(blog);
+    }
+
+    //admin
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteBlog(@PathVariable long id) {
+        blogService.deleteBlog(id);
+        return ResponseEntity.ok("Deleted");
     }
 
 }

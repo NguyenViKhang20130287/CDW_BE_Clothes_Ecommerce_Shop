@@ -44,6 +44,9 @@ public class SliderServiceImpl implements SliderService {
             if (filterJson.has("status")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("status"), filterJson.get("status").asBoolean()));
             }
+            if (filterJson.has("isDeleted")) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("isDeleted"), filterJson.get("isDeleted").asBoolean()));
+            }
             return predicate;
         };
         if (sortBy.equals("id")) {
@@ -81,5 +84,12 @@ public class SliderServiceImpl implements SliderService {
     @Override
     public Slider getSliderById(long id) {
         return sliderRepository.findById(id).orElseThrow(() -> new RuntimeException("Slider not found"));
+    }
+
+    @Override
+    public void deleteSlider(long id) {
+        Slider slider = sliderRepository.findById(id).orElseThrow(() -> new RuntimeException("Slider not found"));
+        slider.setDeleted(true);
+        sliderRepository.save(slider);
     }
 }

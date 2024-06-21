@@ -34,6 +34,7 @@ public class ReviewController {
         return ResponseEntity.ok(review);
     }
 
+    //admin
     @PutMapping("/{id}")
     public ResponseEntity<Review> updateType(@PathVariable long id,@RequestBody Review review) {
         Review review1 = reviewService.updateType(id, review);
@@ -49,5 +50,12 @@ public class ReviewController {
     public ResponseEntity<List<Review>> getReviewByProductId(@PathVariable long productId) {
         List<Review> reviews = reviewService.getReviewByProductId(productId);
         return ResponseEntity.ok(reviews);
+    }
+
+    //admin
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteReviewById(@PathVariable long id) {
+        reviewService.deleteReview(id);
+        return ResponseEntity.ok("Deleted");
     }
 }

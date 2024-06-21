@@ -47,6 +47,9 @@ public class ColorServiceImpl implements ColorService {
             if (filterJson.has("name")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("name"), "%" + filterJson.get("name").asText() + "%"));
             }
+            if (filterJson.has("isDeleted")) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("isDeleted"), filterJson.get("isDeleted").asBoolean()));
+            }
             return predicate;
         };
 
@@ -71,5 +74,12 @@ public class ColorServiceImpl implements ColorService {
         colorToUpdate.setName(color.getName());
         colorToUpdate.setColorCode(color.getColorCode());
         return colorRepository.save(colorToUpdate);
+    }
+
+    @Override
+    public void deleteColor(Long id) {
+        Color colorToDelete = colorRepository.findById(id).orElse(null);
+        colorToDelete.setDeleted(true);
+        colorRepository.save(colorToDelete);
     }
 }
