@@ -60,4 +60,7 @@ public class Promotion {
     @JsonBackReference
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "promotions")
     private List<Product> products;
+
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
 }

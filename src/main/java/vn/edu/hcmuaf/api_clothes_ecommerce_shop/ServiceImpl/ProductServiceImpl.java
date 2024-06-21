@@ -100,6 +100,11 @@ public class ProductServiceImpl implements ProductService {
             if (filterJson.has("createdAt")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("createdAt"), filterJson.get("createdAt").asText()));
             }
+            if (filterJson.has("price_lt") || filterJson.has("price_gt")) {
+                double priceLt = filterJson.has("price_lt") ? filterJson.get("price_lt").asDouble() : Double.MAX_VALUE;
+                double priceGt = filterJson.has("price_gt") ? filterJson.get("price_gt").asDouble() : 0;
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.between(root.get("price"), priceGt, priceLt));
+            }
             return predicate;
         };
 
@@ -145,9 +150,14 @@ public class ProductServiceImpl implements ProductService {
             if (filterJson.has("status")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("status"), filterJson.get("status").asBoolean()));
             }
+            if (filterJson.has("categoryId")) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("category").get("id"), filterJson.get("categoryId").asLong()));
+            }
+            if (filterJson.has("isDeleted")) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("isDeleted"), filterJson.get("isDeleted").asBoolean()));
+            }
             return predicate;
         };
-
         if (sortBy.equals("price")) {
             return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "price")));
         }
@@ -158,14 +168,16 @@ public class ProductServiceImpl implements ProductService {
             return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "status")));
         }
         if (sortBy.equals("createdAt")) {
-            return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "createdAt")));
+            return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "status")));
         }
-        return productRepository.findAllByCategoryId(categoryId, PageRequest.of(page, perPage, Sort.by(direction, sortBy)));
+        return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "status")));
     }
 
     @Override
     public void deleteProduct(Long id) {
-        productRepository.deleteById(id);
+        Product product = productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Product not found"));
+        product.setDeleted(true);
+        productRepository.save(product);
     }
 
     @Override

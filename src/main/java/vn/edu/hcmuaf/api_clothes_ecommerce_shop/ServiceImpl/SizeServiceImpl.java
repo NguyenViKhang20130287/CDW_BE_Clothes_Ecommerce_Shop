@@ -39,6 +39,9 @@ public class SizeServiceImpl implements SizeService {
             if (filterJson.has("name")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("name"), "%" + filterJson.get("name").asText() + "%"));
             }
+            if (filterJson.has("isDeleted")) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("isDeleted"), filterJson.get("isDeleted").asBoolean()));
+            }
             return predicate;
         };
 
@@ -67,5 +70,12 @@ public class SizeServiceImpl implements SizeService {
         }
         sizeToUpdate.setName(size.getName());
         return sizeRepository.save(sizeToUpdate);
+    }
+
+    @Override
+    public void deleteSize(Long id) {
+        Size sizeToDelete = sizeRepository.findById(id).orElse(null);
+        sizeToDelete.setDeleted(true);
+        sizeRepository.save(sizeToDelete);
     }
 }

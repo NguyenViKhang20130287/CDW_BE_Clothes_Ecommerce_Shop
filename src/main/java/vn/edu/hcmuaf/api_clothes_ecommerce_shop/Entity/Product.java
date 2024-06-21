@@ -50,6 +50,9 @@ public class Product {
     @Column(name = "created_at")
     private String createdAt;
 
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
+
 //    @JsonIgnore
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)

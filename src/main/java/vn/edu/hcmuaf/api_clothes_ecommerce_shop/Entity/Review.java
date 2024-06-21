@@ -40,4 +40,7 @@ public class Review {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_detail_id", referencedColumnName = "id", nullable = false)
     private OrderDetails orderDetails;
+
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
 }

@@ -13,10 +13,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.Request.ImportInvoiceDetailRequest;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.Request.ImportInvoiceRequest;
-import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.ImportWarehouseDetail;
-import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Product;
-import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Size;
-import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Warehouse;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.*;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.*;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.ImportWarehouseDetailRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.WarehouseService;
@@ -35,15 +32,17 @@ public class WarehouseServiceImpl implements WarehouseService {
     private SizeRepository sizeRepository;
     private UserRepository userRepository;
     private ImportWarehouseDetailRepository importWarehouseDetailRepository;
+    private ColorSizeRepository colorSizeRepository;
 
     @Autowired
-    public WarehouseServiceImpl(WarehouseRepository warehouseRepository, ProductRepository productRepository, ColorRepository colorRepository, SizeRepository sizeRepository, UserRepository userRepository, ImportWarehouseDetailRepository importWarehouseDetailRepository) {
+    public WarehouseServiceImpl(WarehouseRepository warehouseRepository, ProductRepository productRepository, ColorRepository colorRepository, SizeRepository sizeRepository, UserRepository userRepository, ImportWarehouseDetailRepository importWarehouseDetailRepository, ColorSizeRepository colorSizeRepository) {
         this.warehouseRepository = warehouseRepository;
         this.productRepository = productRepository;
         this.colorRepository = colorRepository;
         this.sizeRepository = sizeRepository;
         this.userRepository = userRepository;
         this.importWarehouseDetailRepository = importWarehouseDetailRepository;
+        this.colorSizeRepository = colorSizeRepository;
     }
 
 
@@ -87,16 +86,36 @@ public class WarehouseServiceImpl implements WarehouseService {
         warehouseRepository.save(importInvoice);
         List<ImportWarehouseDetail> importWarehouseDetails = new ArrayList<>();
         for (ImportInvoiceDetailRequest importInvoiceDetailRequest : importInvoiceRequest.getImportInvoiceDetailRequests()) {
+            Product product = productRepository.findById(importInvoiceDetailRequest.getProduct_id()).orElse(null);
+            Color color = colorRepository.findById(importInvoiceDetailRequest.getColor_id()).orElse(null);
+            Size size = sizeRepository.findById(importInvoiceDetailRequest.getSize_id()).orElse(null);
             ImportWarehouseDetail importWarehouseDetail = new ImportWarehouseDetail();
-            importWarehouseDetail.setProduct(productRepository.findById(importInvoiceDetailRequest.getProduct_id()).orElse(null));
-            importWarehouseDetail.setColor(colorRepository.findById(importInvoiceDetailRequest.getColor_id()).orElse(null));
-            importWarehouseDetail.setSize(sizeRepository.findById(importInvoiceDetailRequest.getSize_id()).orElse(null));
+            importWarehouseDetail.setProduct(product);
+            importWarehouseDetail.setColor(color);
+            importWarehouseDetail.setSize(size);
             importWarehouseDetail.setQuantity(importInvoiceDetailRequest.getQuantity());
             importWarehouseDetail.setImportPrice(importInvoiceDetailRequest.getImportPrice());
             importWarehouseDetail.setWarehouse(importInvoice);
             importWarehouseDetailRepository.save(importWarehouseDetail);
             importWarehouseDetails.add(importWarehouseDetail);
             totalPrice += importWarehouseDetail.getImportPrice() * importWarehouseDetail.getQuantity();
+
+            // Update quantity in color_size table
+            ColorSize colorSize = colorSizeRepository.findByColorIdAndSizeIdAndProductId(color.getId(), size.getId(), product.getId());
+            if (colorSize == null) {
+                colorSize = new ColorSize();
+                colorSize.setColor(color);
+                colorSize.setSize(size);
+                colorSize.setProduct(product);
+                colorSize.setQuantity(importInvoiceDetailRequest.getQuantity());
+            } else {
+                colorSize.setQuantity(colorSize.getQuantity() + importInvoiceDetailRequest.getQuantity());
+            }
+            colorSizeRepository.save(colorSize);
+            //update quantity in product table
+            product.setQuantity(product.getQuantity() + importInvoiceDetailRequest.getQuantity());
+            productRepository.save(product);
+
         }
         importInvoice.setTotalAmount(totalPrice);
         importInvoice.setImportWarehouseDetails(importWarehouseDetails);

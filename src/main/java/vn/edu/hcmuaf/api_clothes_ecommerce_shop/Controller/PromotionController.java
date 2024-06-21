@@ -35,12 +35,14 @@ public class PromotionController {
         return ResponseEntity.ok(promotionService.getPromotionById(id));
     }
 
+    //admin
     @PostMapping
     public ResponseEntity<Promotion> createPromotion(@RequestBody Promotion promotion) {
         Promotion newPromotion = promotionService.createPromotion(promotion);
         return ResponseEntity.ok(newPromotion);
     }
 
+    //admin
     @PutMapping("/{id}")
     public ResponseEntity<Promotion> updatePromotion(@PathVariable Long id, @RequestBody Promotion promotion) {
         return ResponseEntity.ok(promotionService.updatePromotion(id, promotion));
@@ -49,5 +51,12 @@ public class PromotionController {
     @GetMapping("/ids")
     public ResponseEntity<List<Promotion>> getPromotionsByIds(@RequestParam List<Long> ids) {
         return ResponseEntity.ok(promotionService.getPromotionsByIds(ids));
+    }
+
+    //admin
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletePromotion(@PathVariable Long id) {
+        promotionService.deletePromotion(id);
+        return ResponseEntity.ok("Deleted");
     }
 }

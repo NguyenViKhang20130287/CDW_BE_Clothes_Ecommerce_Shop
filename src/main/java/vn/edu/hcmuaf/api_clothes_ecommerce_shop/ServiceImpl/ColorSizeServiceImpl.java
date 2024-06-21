@@ -50,4 +50,9 @@ public class ColorSizeServiceImpl implements ColorSizeService {
 
         return colorSizeRepository.findAll(specification, PageRequest.of(start, end, Sort.by(direction, sortBy)));
     }
+
+    @Override
+    public ColorSize getColorSizeByColorIdAndSizeIdAndProductId(Long colorId, Long sizeId, Long productId) {
+        return colorSizeRepository.findByColorIdAndSizeIdAndProductId(colorId, sizeId, productId);
+    }
 }

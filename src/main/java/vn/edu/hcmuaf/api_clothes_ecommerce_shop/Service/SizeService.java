@@ -8,4 +8,5 @@ public interface SizeService {
     Size getSizeById(Long id);
     Size addSize(Size size);
     Size updateSize(Long id, Size size);
+    void deleteSize(Long id);
 }

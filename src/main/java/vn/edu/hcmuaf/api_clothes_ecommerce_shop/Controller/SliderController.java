@@ -33,16 +33,25 @@ public class SliderController {
         return ResponseEntity.ok(slider);
     }
 
+    //admin
     @PostMapping
     public ResponseEntity<Slider> createSlider(@RequestBody Slider slider) {
         Slider newSlider = sliderService.createSlider(slider);
         return ResponseEntity.ok(newSlider);
     }
 
+    //admin
     @PutMapping("/{id}")
     public ResponseEntity<Slider> updateSlider(@PathVariable long id, @RequestBody Slider slider) {
         Slider updatedSlider = sliderService.updateSlider(id, slider);
         return ResponseEntity.ok(updatedSlider);
+    }
+
+    //admin
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteSlider(@PathVariable long id) {
+        sliderService.deleteSlider(id);
+        return ResponseEntity.ok("Deleted");
     }
 
 }
