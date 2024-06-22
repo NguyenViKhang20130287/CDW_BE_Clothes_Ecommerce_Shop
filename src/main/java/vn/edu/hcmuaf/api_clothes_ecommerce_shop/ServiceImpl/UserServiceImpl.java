@@ -191,12 +191,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<?> edit(long id, UserDTO userDTO) {
-        System.out.println("Status: " + userDTO.isStatus());
+        System.out.println("Data: " + userDTO);
         try {
             User user = userRepository.findById(id).orElse(null);
             if (user == null) return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
             String generatePassword = String.format("%04d", (int) (Math.random() * 1000000));
             System.out.println("Password generate: " + generatePassword);
+//            emailConfig.sendNewPassword(user.getUserInformation().getEmail(), generatePassword);
             System.out.println("Permission: " + userDTO.getPermission());
             Permission permission = permissionRepository.findById(userDTO.getPermission()).orElse(null);
             if (userDTO.getAvatarLink() != null) {
@@ -220,25 +221,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<?> delete(long id) {
-        User user = userRepository.findById(id).orElse(null);
-        if (user == null) return new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
-        UserInformation userInfo = user.getUserInformation();
-        reviewRepository.deleteAll(user.getReviews());
-        System.out.println("Reviews deleted");
-        List<Order> orders = orderRepository.findAllByUserIdOrderByCreatedAtDesc(id);
-        for (Order order : orders) {
-            order.setUser(null);
+        try {
+            User user = userRepository.findById(id).orElse(null);
+            if (user == null) return new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
+            user.setStatus(false);
+            userRepository.save(user);
+            return new ResponseEntity<>("Delete user has id: " + id + " successful", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Failed action", HttpStatus.BAD_REQUEST);
         }
-        List<Address> addresses = user.getAddresses();
-        addressRepository.deleteAll(addresses);
-        user.setUserInformation(null);
-        userRepository.delete(user);
-        System.out.println("Delete user success");
-        if (userInfo != null) {
-            userInformationRepository.delete(userInfo);
-        }
-
-        return new ResponseEntity<>("Delete user has id: " + id + " successful", HttpStatus.OK);
     }
 
     @Override

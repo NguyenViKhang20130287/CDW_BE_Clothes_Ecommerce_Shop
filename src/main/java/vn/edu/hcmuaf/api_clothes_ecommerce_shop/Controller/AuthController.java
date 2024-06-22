@@ -57,4 +57,9 @@ public class AuthController {
     public ResponseEntity<?> checkAuth(@RequestParam String token){
         return ResponseEntity.ok(authService.checkAuth(token));
     }
+
+    @GetMapping("/check-role")
+    public ResponseEntity<?> checkRole(@RequestParam String token){
+        return authService.checkRole(token);
+    }
 }

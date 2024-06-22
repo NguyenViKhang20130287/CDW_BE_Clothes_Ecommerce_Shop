@@ -202,6 +202,7 @@ public class DiscountCodeServiceImpl implements DiscountCodeService {
         DiscountCode discountCode = codeRepository.findById(id).orElse(null);
         if (discountCode == null) return new ResponseEntity<>("Discount code not found!", HttpStatus.NOT_FOUND);
         discountCode.setQuantity(discountCode.getQuantity() - 1);
+        codeRepository.save(discountCode);
         return new ResponseEntity<>(discountCode, HttpStatus.OK);
     }
 

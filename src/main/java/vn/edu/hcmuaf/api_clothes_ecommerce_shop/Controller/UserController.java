@@ -65,6 +65,7 @@ public class UserController {
         return ResponseEntity.ok(userService.findByEmailOrUsername(username, email));
     }
 
+    // ADMIN
     // create new user
     @PostMapping("")
     public ResponseEntity<?> createNewUser(
@@ -73,14 +74,17 @@ public class UserController {
         return ResponseEntity.ok(userService.createNew(userDTO));
     }
 
+    // ADMIN
     @PutMapping("/{id}")
     public ResponseEntity<?> editUser(
             @PathVariable long id,
-            @ModelAttribute UserDTO userDTO
+            @RequestBody UserDTO userDTO
     ) {
         return ResponseEntity.ok(userService.edit(id, userDTO));
     }
 
+
+    // ADMIN
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(
             @PathVariable long id
@@ -88,6 +92,7 @@ public class UserController {
         return ResponseEntity.ok(userService.delete(id));
     }
 
+    // ADMIN
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable long id) {
         return ResponseEntity.ok(userService.findById(id));
@@ -135,11 +140,6 @@ public class UserController {
     ) {
         return userService.editAddress(username, addressDTO);
     }
-
-//    @GetMapping("/user-details/order/")
-//    public ResponseEntity<?> loadOrder(@RequestParam int orderId){
-//        return null;
-//    }
 
     @GetMapping("/user-details/addresses")
     public ResponseEntity<?> loadAddressUser(@RequestParam String token){
