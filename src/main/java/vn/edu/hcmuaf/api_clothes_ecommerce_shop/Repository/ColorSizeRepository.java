@@ -8,4 +8,5 @@ import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.ColorSize;
 
 public interface ColorSizeRepository extends JpaRepository<ColorSize, Long> {
     Page<ColorSize> findAll(Specification<ColorSize> specification, Pageable pageable);
+    ColorSize findByColorIdAndSizeIdAndProductId(Long colorId, Long sizeId, Long productId);
 }

@@ -11,6 +11,7 @@ public interface SliderService {
     Page<Slider> getAllSliders(String filter, int start, int end, String sortBy, String order);
     Slider createSlider(Slider slider);
     Slider updateSlider(long id, Slider slider);
-
     Slider getSliderById(long id);
+    void deleteSlider(long id);
+
 }

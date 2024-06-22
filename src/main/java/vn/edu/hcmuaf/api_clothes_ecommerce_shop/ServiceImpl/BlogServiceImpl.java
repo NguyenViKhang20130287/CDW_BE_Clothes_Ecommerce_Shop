@@ -50,6 +50,9 @@ public class BlogServiceImpl implements BlogService {
             if (filterJson.has("createdAt")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("createdAt"), filterJson.get("createdAt").asText()));
             }
+            if (filterJson.has("isDeleted")) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("isDeleted"), filterJson.get("isDeleted").asBoolean()));
+            }
             return predicate;
         };
         if (sortBy.equals("title")) {
@@ -92,5 +95,12 @@ public class BlogServiceImpl implements BlogService {
         blog.setUpdatedAt(formatter.format(new java.util.Date()));
         blog.setUpdatedBy(newBlog.getUpdatedBy());
         return blogRepository.save(blog);
+    }
+
+    @Override
+    public void deleteBlog(long id) {
+        Blog blog = blogRepository.findById(id).orElse(null);
+        blog.setDeleted(true);
+        blogRepository.save(blog);
     }
 }

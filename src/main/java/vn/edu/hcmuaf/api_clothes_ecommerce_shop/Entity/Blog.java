@@ -51,6 +51,7 @@ public class Blog {
     @JoinColumn(name = "updated_by")
     private User updatedBy;
 
-
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
 
 }

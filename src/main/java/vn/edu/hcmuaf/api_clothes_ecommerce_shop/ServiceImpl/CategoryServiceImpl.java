@@ -11,8 +11,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Category;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Product;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.User;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.CategoryRepository;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Repository.ProductRepository;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.CategoryService;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.UserService;
 
@@ -25,8 +27,14 @@ import java.util.stream.Stream;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
-    @Autowired
     private CategoryRepository categoryRepository;
+    private ProductRepository productRepository;
+
+    @Autowired
+    public CategoryServiceImpl(CategoryRepository categoryRepository, ProductRepository productRepository) {
+        this.categoryRepository = categoryRepository;
+        this.productRepository = productRepository;
+    }
 
     @Override
     public Page<Category> getAllCategories(String filter, int start, int end, String sortBy, String order) {
@@ -48,6 +56,9 @@ public class CategoryServiceImpl implements CategoryService {
             }
             if (filterJson.has("status")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("status"), filterJson.get("status").asBoolean()));
+            }
+            if (filterJson.has("isDeleted")) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("isDeleted"), filterJson.get("isDeleted").asBoolean()));
             }
             return predicate;
         };
@@ -72,13 +83,14 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void deleteCategory(long id) {
-        categoryRepository.deleteById(id);
-    }
-
-    @Override
     public Category createCategory(Category category) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        category.setDeleted(false);
+        for(Product product : category.getProducts()){
+            product.setDeleted(true);
+            product.setUpdatedAt(formatter.format(new Date()));
+            productRepository.save(product);
+        }
         category.setCreatedAt(formatter.format(new Date()));
         category.setUpdatedAt(formatter.format(new Date()));
         return categoryRepository.save(category);
@@ -93,6 +105,16 @@ public class CategoryServiceImpl implements CategoryService {
         categoryUpdate.setUpdatedAt(formatter.format(new Date()));
         categoryUpdate.setUpdatedBy(category.getUpdatedBy());
         return categoryRepository.save(categoryUpdate);
+    }
+
+    @Override
+    public void deleteCategory(long id) {
+        Category category = categoryRepository.findById(id).orElse(null);
+        assert category != null;
+        category.setDeleted(true);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        category.setUpdatedAt(formatter.format(new Date()));
+        categoryRepository.save(category);
     }
 
 }

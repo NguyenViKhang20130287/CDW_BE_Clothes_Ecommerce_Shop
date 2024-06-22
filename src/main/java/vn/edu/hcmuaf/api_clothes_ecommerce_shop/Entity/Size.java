@@ -34,4 +34,7 @@ public class Size {
     @JsonIgnore
     @OneToMany(mappedBy = "size", cascade = CascadeType.ALL)
     private List<ImportWarehouseDetail> importWarehouseDetails;
+
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
 }

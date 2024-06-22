@@ -11,4 +11,6 @@ public interface ColorService {
 
     Color addColor(Color color);
     Color updateColor(Long id, Color color);
+
+    void deleteColor(Long id);
 }
