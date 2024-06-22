@@ -122,8 +122,9 @@ public class AuthServiceImpl implements AuthService {
                         .build(),
                         HttpStatus.OK);
             }
-
         }
+        assert userCheck != null;
+        logService.addLog(userCheck.getId(), "Đăng nhập thất bại");
         return new ResponseEntity<>("Username hoặc mật khẩu không đúng !", HttpStatus.BAD_REQUEST);
     }
 
@@ -171,5 +172,13 @@ public class AuthServiceImpl implements AuthService {
         }catch (Exception e){
             return new ResponseEntity<>("Token is expired!", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @Override
+    public ResponseEntity<?> checkRole(String token) {
+        String username = jwtService.decode(token).getSubject();
+        User user = userRepository.findByUsername(username).orElse(null);
+        if (user == null) return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(user.getPermission(), HttpStatus.OK);
     }
 }

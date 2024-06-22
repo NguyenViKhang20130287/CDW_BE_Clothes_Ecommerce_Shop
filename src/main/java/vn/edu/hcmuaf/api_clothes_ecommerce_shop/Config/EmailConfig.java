@@ -24,4 +24,12 @@ public class EmailConfig {
         javaMailSender.send(message);
     }
 
+    public void sendNewPassword(String toEmail, String newPassword) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("Cung cấp lại mật khẩu mới");
+        message.setText("Mật khẩu mới của bạn là: " + newPassword);
+        javaMailSender.send(message);
+    }
+
 }

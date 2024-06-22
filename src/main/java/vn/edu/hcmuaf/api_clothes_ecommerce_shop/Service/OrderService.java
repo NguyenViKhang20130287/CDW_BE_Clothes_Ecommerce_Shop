@@ -15,6 +15,7 @@ public interface OrderService {
     void updateDeliveryStatus(long orderId, String status);
     ResponseEntity<?> updateResponseEntityStatus(PaymentVNPAYDto paymentVNPAYDto);
     ResponseEntity<?> orderWithPaymentMethodCOD(OrderDto orderDto);
+    ResponseEntity<?> orderByNow(OrderDto orderDto);
     ResponseEntity<?> orderWithPaymentMethodVNPAY(OrderDto orderDto);
     Page<Order> findAll(int page, int size, String sort, String order, String filter);
     ResponseEntity<?> findById(long id);

@@ -166,6 +166,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public ResponseEntity<?> orderByNow(OrderDto orderDto) {
+        return null;
+    }
+
+    @Override
     public ResponseEntity<?> orderWithPaymentMethodVNPAY(OrderDto orderDto) {
         Order order = new Order();
         order.setFullName(orderDto.getFullName());

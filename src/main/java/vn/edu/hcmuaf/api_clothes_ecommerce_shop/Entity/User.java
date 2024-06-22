@@ -10,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -37,7 +38,7 @@ public class User implements UserDetails {
     private UserInformation userInformation;
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "permission_id", referencedColumnName = "id", nullable = false)
     private Permission permission;
 
@@ -68,7 +69,7 @@ public class User implements UserDetails {
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + permission.getName()));
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + permission.getName()));
     }
 
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
