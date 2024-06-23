@@ -361,17 +361,19 @@ public class OrderServiceImpl implements OrderService {
     public ResponseEntity<?> edit(long id, DeliveryStatusDTO deliveryStatusDTO) {
         Order order = orderRepository.findById(id).orElse(null);
         if (order == null) return ResponseEntity.badRequest().body("Order doesn't exist !");
-        DeliveryStatus status = deliveryStatusRepository.findByName(deliveryStatusDTO.getDeliveryStatus()).orElse(null);
+        DeliveryStatus status = deliveryStatusRepository.findById(deliveryStatusDTO.getDeliveryId()).orElse(null);
         DeliveryStatusHistory history = new DeliveryStatusHistory();
         history.setOrder(order);
         history.setDeliveryStatus(status);
         history.setCreatedAt(LocalDateTime.now());
         deliveryStatusHistoryRepository.save(history);
         order.setDeliveryStatus(status);
-        if (deliveryStatusDTO.getDeliveryStatus().equalsIgnoreCase("paid")){
+        if (deliveryStatusDTO.getDeliveryId() == 1){
             order.setPaymentStatus(true);
         }
         orderRepository.save(order);
+        assert status != null;
+        System.out.println("Updated " + status.getName());
         return ResponseEntity.ok("Updated " + deliveryStatusDTO.getDeliveryStatus());
     }
 

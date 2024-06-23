@@ -8,5 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DeliveryStatusDTO {
+    private long deliveryId;
     private String deliveryStatus;
 }
