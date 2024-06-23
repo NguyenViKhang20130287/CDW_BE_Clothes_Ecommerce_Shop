@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Config.JwtService;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.DeliveryStatusDTO;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.OrderDto;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.PaymentVNPAYDto;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.ProductOrderDto;
@@ -348,6 +349,30 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ResponseEntity<?> getListDiscount() {
         return new ResponseEntity<>(discountCodeRepository.findAll(), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> getListDeliveryStatus() {
+        List<DeliveryStatus> deliveryStatuses = deliveryStatusRepository.findAll();
+        return ResponseEntity.ok(deliveryStatuses);
+    }
+
+    @Override
+    public ResponseEntity<?> edit(long id, DeliveryStatusDTO deliveryStatusDTO) {
+        Order order = orderRepository.findById(id).orElse(null);
+        if (order == null) return ResponseEntity.badRequest().body("Order doesn't exist !");
+        DeliveryStatus status = deliveryStatusRepository.findByName(deliveryStatusDTO.getDeliveryStatus()).orElse(null);
+        DeliveryStatusHistory history = new DeliveryStatusHistory();
+        history.setOrder(order);
+        history.setDeliveryStatus(status);
+        history.setCreatedAt(LocalDateTime.now());
+        deliveryStatusHistoryRepository.save(history);
+        order.setDeliveryStatus(status);
+        if (deliveryStatusDTO.getDeliveryStatus().equalsIgnoreCase("paid")){
+            order.setPaymentStatus(true);
+        }
+        orderRepository.save(order);
+        return ResponseEntity.ok("Updated " + deliveryStatusDTO.getDeliveryStatus());
     }
 
     public static void main(String[] args) {

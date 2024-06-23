@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.DeliveryStatusDTO;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.OrderDto;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Dto.PaymentVNPAYDto;
+import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.DeliveryStatus;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Entity.Order;
 import vn.edu.hcmuaf.api_clothes_ecommerce_shop.Service.OrderService;
 
@@ -59,6 +61,11 @@ public class OrderController {
         return orderService.confirmOrder(id);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> edit(@PathVariable long id, @RequestBody DeliveryStatusDTO deliveryStatusDTO){
+        return orderService.edit(id, deliveryStatusDTO);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteOrder(@PathVariable long id) {
         return orderService.deleteOrder(id);
@@ -72,5 +79,10 @@ public class OrderController {
     @GetMapping("/discounts")
     public ResponseEntity<?> getListDiscount(){
         return orderService.getListDiscount();
+    }
+
+    @GetMapping("/delivery-statuses")
+    public ResponseEntity<?> getAllDeliveryStatus(){
+        return orderService.getListDeliveryStatus();
     }
 }
