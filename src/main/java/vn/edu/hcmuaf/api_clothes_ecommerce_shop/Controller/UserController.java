@@ -69,7 +69,7 @@ public class UserController {
     // create new user
     @PostMapping("")
     public ResponseEntity<?> createNewUser(
-            @ModelAttribute UserDTO userDTO
+            @RequestBody UserDTO userDTO
     ) {
         return ResponseEntity.ok(userService.createNew(userDTO));
     }

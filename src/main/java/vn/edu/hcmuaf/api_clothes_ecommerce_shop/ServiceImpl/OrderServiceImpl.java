@@ -112,7 +112,11 @@ public class OrderServiceImpl implements OrderService {
         history.setCreatedAt(LocalDateTime.now());
         deliveryStatusHistoryRepository.save(history);
         order.setDeliveryStatus(status);
+        if (paymentVNPAYDto.getStatus().equalsIgnoreCase("paid")){
+            order.setPaymentStatus(true);
+        }
         orderRepository.save(order);
+        System.out.println("Updated " + paymentVNPAYDto.getStatus());
         return ResponseEntity.ok("Updated " + paymentVNPAYDto.getStatus());
     }
 
@@ -128,7 +132,8 @@ public class OrderServiceImpl implements OrderService {
         order.setAddress(orderDto.getAddress());
         order.setPhone(orderDto.getPhone());
         order.setPaymentMethod(orderDto.getPaymentMethod());
-        order.setPaymentStatus(false);
+        boolean paymentStatus = orderDto.getPaymentMethod().equalsIgnoreCase("vnpay");
+        order.setPaymentStatus(paymentStatus);
         order.setDeliveryStatus(status);
         order.setTotalAmount(orderDto.getTotalAmount());
         if (!orderDto.getDiscountCode().isEmpty()) {
@@ -138,6 +143,7 @@ public class OrderServiceImpl implements OrderService {
 
         order.setShippingCost(orderDto.getShippingCost());
         order.setCreatedAt(String.valueOf(LocalDateTime.now()));
+        order.setDeleted(false);
         orderRepository.save(order);
 
         OrderDetails od;
@@ -241,6 +247,12 @@ public class OrderServiceImpl implements OrderService {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("paymentStatus"), paymentStatus));
             }
 
+            if (jsonFilter.has("isDeleted")) {
+                boolean paymentStatus = jsonFilter.get("isDeleted").asBoolean();
+                System.out.println("Deleted: " + paymentStatus);
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("isDeleted"), paymentStatus));
+            }
+
             if (jsonFilter.has("deliveryStatus")) {
                 String deliveryName = jsonFilter.get("deliveryStatus").asText();
 //                System.out.println("Delivery name: " + deliveryName);
@@ -253,7 +265,7 @@ public class OrderServiceImpl implements OrderService {
                 String paymentMethod = jsonFilter.get("paymentMethod").asText();
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("paymentMethod"), paymentMethod));
             }
-            if(jsonFilter.has("date_gte")){
+            if (jsonFilter.has("date_gte")) {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
                 try {
                     java.util.Date date = dateFormat.parse(jsonFilter.get("date_gte").asText());
@@ -314,7 +326,8 @@ public class OrderServiceImpl implements OrderService {
     public ResponseEntity<?> deleteOrder(long id) {
         Order order = orderRepository.findById(id).orElse(null);
         if (order == null) return new ResponseEntity<>("Order not found !", HttpStatus.NOT_FOUND);
-        orderRepository.delete(order);
+        order.setDeleted(true);
+        orderRepository.save(order);
         System.out.println("Delete order: " + order.getId());
         return ResponseEntity.ok("Delete success");
     }
@@ -325,7 +338,7 @@ public class OrderServiceImpl implements OrderService {
             String username = jwtService.decode(token).getSubject();
             User user = userRepository.findByUsername(username).orElse(null);
             assert user != null;
-            List<Order> orders = orderRepository.findAllByUserIdOrderByCreatedAtDesc(user.getId());
+            List<Order> orders = orderRepository.findAllByIsDeletedIsFalseAndUserIdOrderByCreatedAtDesc(user.getId());
             return new ResponseEntity<>(orders, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Token is expired", HttpStatus.BAD_REQUEST);

@@ -39,6 +39,9 @@ public class Order {
     @Column(name = "total_amount")
     private double totalAmount;
 
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
+
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "discount_code_id", referencedColumnName = "id")

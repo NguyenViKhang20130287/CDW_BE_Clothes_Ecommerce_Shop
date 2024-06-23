@@ -13,5 +13,7 @@ import java.util.Optional;
 public interface OrderRepository extends JpaRepository<Order, Long> {
     Optional<Order> findById(long id);
     Page<Order> findAll(Specification<Order> specification, Pageable pageable);
-    List<Order> findAllByUserIdOrderByCreatedAtDesc(long id);
+    Page<Order> findAllByDeleted(boolean isDeleted, Specification<Order> specification, Pageable pageable);
+//    List<Order> findAllByUserIdAndDeletedOrderByCreatedAtDesc(long id, boolean deleted);
+    List<Order> findAllByIsDeletedIsFalseAndUserIdOrderByCreatedAtDesc(long id);
 }
