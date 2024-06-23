@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@Table(name = "promotion")
+@Table(name = "promotions")
 public class Promotion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

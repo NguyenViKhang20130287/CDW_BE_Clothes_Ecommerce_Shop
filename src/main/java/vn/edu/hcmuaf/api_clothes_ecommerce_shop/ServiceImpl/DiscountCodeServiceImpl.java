@@ -193,6 +193,7 @@ public class DiscountCodeServiceImpl implements DiscountCodeService {
             codeRepository.save(discountCode);
             return new ResponseEntity<>(discountCode, HttpStatus.OK);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>("Token is expired", HttpStatus.BAD_REQUEST);
         }
     }
@@ -203,6 +204,7 @@ public class DiscountCodeServiceImpl implements DiscountCodeService {
         if (discountCode == null) return new ResponseEntity<>("Discount code not found!", HttpStatus.NOT_FOUND);
         discountCode.setQuantity(discountCode.getQuantity() - 1);
         codeRepository.save(discountCode);
+        System.out.println("'Quantity discount code: " + discountCode.getQuantity());
         return new ResponseEntity<>(discountCode, HttpStatus.OK);
     }
 

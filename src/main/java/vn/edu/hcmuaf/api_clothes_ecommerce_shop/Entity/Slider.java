@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "slider")
+@Table(name = "sliders")
 public class Slider {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

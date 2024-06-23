@@ -150,8 +150,8 @@ public class ProductServiceImpl implements ProductService {
             if (filterJson.has("status")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("status"), filterJson.get("status").asBoolean()));
             }
-            if (filterJson.has("categoryId")) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("category").get("id"), filterJson.get("categoryId").asLong()));
+            if (filterJson.has("category")) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("category").get("id"), filterJson.get("category").asLong()));
             }
             if (filterJson.has("isDeleted")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("isDeleted"), filterJson.get("isDeleted").asBoolean()));
@@ -162,13 +162,13 @@ public class ProductServiceImpl implements ProductService {
             return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "price")));
         }
         if (sortBy.equals("name")) {
-            return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "name")));
+            return productRepository.findAll( specification, PageRequest.of(page, perPage, Sort.by(direction, "name")));
         }
-        if (sortBy.equals("status")) {
-            return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "status")));
+        if (sortBy.equals("id")) {
+            return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "id")));
         }
         if (sortBy.equals("createdAt")) {
-            return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "status")));
+            return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "createdAt")));
         }
         return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "status")));
     }

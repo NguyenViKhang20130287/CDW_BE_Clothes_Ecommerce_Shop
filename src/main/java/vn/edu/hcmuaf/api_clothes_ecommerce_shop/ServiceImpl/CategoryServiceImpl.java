@@ -86,11 +86,7 @@ public class CategoryServiceImpl implements CategoryService {
     public Category createCategory(Category category) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         category.setDeleted(false);
-        for(Product product : category.getProducts()){
-            product.setDeleted(true);
-            product.setUpdatedAt(formatter.format(new Date()));
-            productRepository.save(product);
-        }
+
         category.setCreatedAt(formatter.format(new Date()));
         category.setUpdatedAt(formatter.format(new Date()));
         return categoryRepository.save(category);
@@ -109,10 +105,15 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void deleteCategory(long id) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Category category = categoryRepository.findById(id).orElse(null);
         assert category != null;
+        for(Product product : category.getProducts()){
+            product.setDeleted(true);
+            product.setUpdatedAt(formatter.format(new Date()));
+            productRepository.save(product);
+        }
         category.setDeleted(true);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         category.setUpdatedAt(formatter.format(new Date()));
         categoryRepository.save(category);
     }
