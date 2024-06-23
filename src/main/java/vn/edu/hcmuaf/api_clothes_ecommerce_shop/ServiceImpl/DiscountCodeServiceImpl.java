@@ -188,6 +188,7 @@ public class DiscountCodeServiceImpl implements DiscountCodeService {
             discountCode.setDiscountRate(discountCodeDTO.getDiscountRate());
             discountCode.setDiscountMoney(discountCodeDTO.getDiscountMoney());
             discountCode.setStatus(discountCodeDTO.isStatus());
+            discountCode.setQuantity(discountCodeDTO.getQuantity());
             discountCode.setUpdatedAt(LocalDateTime.now());
             discountCode.setUpdatedBy(user);
             codeRepository.save(discountCode);
