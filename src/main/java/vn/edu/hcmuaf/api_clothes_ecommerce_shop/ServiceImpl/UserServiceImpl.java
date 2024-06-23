@@ -287,6 +287,12 @@ public class UserServiceImpl implements UserService {
             address.setDistrict(addressDTO.getDistrict());
             address.setProvinceId(addressDTO.getProvinceId());
             address.setProvince(addressDTO.getProvince());
+            if (addressDTO.isDefault()) {
+                List<Address> addresses = user.getAddresses();
+                for (Address ar : addresses) {
+                    ar.setDefault(false);
+                }
+            }
             address.setDefault(addressDTO.isDefault());
             address.setCreatedAt(String.valueOf(LocalDateTime.now()));
             addressRepository.save(address);

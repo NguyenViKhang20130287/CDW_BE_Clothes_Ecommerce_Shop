@@ -126,10 +126,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/api/v1/order/confirm/{id:\\d+}").hasRole("ORDER_MANAGER")
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/order/{id:\\d+}").hasRole("ORDER_MANAGER")
                 // REVIEW
-                .requestMatchers(HttpMethod.POST, "/api/v1/review").hasRole("ADMIN")
+//                .requestMatchers(HttpMethod.POST, "/api/v1/review").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/v1/review/{id:\\d+}").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/review/{id:\\d+}").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/v1/review").hasRole("ORDER_MANAGER")
+//                .requestMatchers(HttpMethod.POST, "/api/v1/review").hasRole("ORDER_MANAGER")
                 .requestMatchers(HttpMethod.PUT, "/api/v1/review/{id:\\d+}").hasRole("ORDER_MANAGER")
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/review/{id:\\d+}").hasRole("ORDER_MANAGER")
 
