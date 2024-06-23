@@ -11,8 +11,8 @@ import java.util.*;
 
 public class VNPayConfig {
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static String vnp_ReturnUrl = "http://localhost:3000/payment-result";
-//    public static String vnp_ReturnUrl = "https://teelab-client-v1.web.app/payment-result";
+//    public static String vnp_ReturnUrl = "http://localhost:3000/payment-result";
+    public static String vnp_ReturnUrl = "https://teelab-client-v1.web.app/payment-result";
     public static String vnp_TmnCode = "6T4T70DK";
     public static String vnp_HashSecret = "9WRBQO7A5ILZ57CU7JU1QI4VU7J0PQZS";
     public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
