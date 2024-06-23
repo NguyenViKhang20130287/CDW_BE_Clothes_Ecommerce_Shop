@@ -106,6 +106,7 @@ public class PromotionServiceImpl implements PromotionService {
             }
         }
         promotion.setProducts(products);
+        promotion.setDeleted(false);
         return promotionRepository.save(promotion);
     }
 

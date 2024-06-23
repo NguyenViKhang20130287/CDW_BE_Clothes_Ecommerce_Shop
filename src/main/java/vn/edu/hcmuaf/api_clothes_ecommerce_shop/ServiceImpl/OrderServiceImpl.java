@@ -118,7 +118,7 @@ public class OrderServiceImpl implements OrderService {
         }
         orderRepository.save(order);
         System.out.println("Updated " + paymentVNPAYDto.getStatus());
-        return ResponseEntity.ok("Updated " + paymentVNPAYDto.getStatus());
+        return ResponseEntity.ok(order);
     }
 
     @Override
