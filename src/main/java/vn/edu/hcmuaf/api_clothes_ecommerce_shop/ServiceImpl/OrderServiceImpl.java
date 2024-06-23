@@ -374,7 +374,7 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
         assert status != null;
         System.out.println("Updated " + status.getName());
-        return ResponseEntity.ok("Updated " + deliveryStatusDTO.getDeliveryStatus());
+        return ResponseEntity.ok(order);
     }
 
     public static void main(String[] args) {
