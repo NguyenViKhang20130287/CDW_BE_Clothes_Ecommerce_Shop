@@ -124,7 +124,7 @@ public class AuthServiceImpl implements AuthService {
             }
         }
         assert userCheck != null;
-        logService.addLog(userCheck.getId(), "Đăng nhập thất bại");
+//        logService.addLog(userCheck.getId(), "Đăng nhập thất bại");
         return new ResponseEntity<>("Username hoặc mật khẩu không đúng !", HttpStatus.BAD_REQUEST);
     }
 

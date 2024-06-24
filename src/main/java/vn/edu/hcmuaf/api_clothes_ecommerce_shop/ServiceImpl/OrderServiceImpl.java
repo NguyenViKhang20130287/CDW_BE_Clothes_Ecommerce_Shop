@@ -133,8 +133,7 @@ public class OrderServiceImpl implements OrderService {
         order.setAddress(orderDto.getAddress());
         order.setPhone(orderDto.getPhone());
         order.setPaymentMethod(orderDto.getPaymentMethod());
-        boolean paymentStatus = orderDto.getPaymentMethod().equalsIgnoreCase("vnpay");
-        order.setPaymentStatus(paymentStatus);
+        order.setPaymentStatus(orderDto.isPaymentStatus());
         order.setDeliveryStatus(status);
         order.setTotalAmount(orderDto.getTotalAmount());
         if (!orderDto.getDiscountCode().isEmpty()) {
